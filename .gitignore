@@ -1,69 +1,63 @@
-# Python
+# Python cache/bytecode
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Virtualenv
+# Virtual environments
 venv/
-.env/
 .venv/
+env/
 
-# Environment variables
+# Environment and secrets
 .env
 .env.*
+!.env.example
+*.pem
+*.key
 
 # Django
 *.log
 local_settings.py
 db.sqlite3
-db.sqlite3-journal
-
-# Static & media (ajuste conforme seu projeto)
-staticfiles/
+db.sqlite3-*
+*.sqlite3
+*.sqlite3-*
 media/
+staticfiles/
 
-# Migrations (CUIDADO - só ignore se souber o que está fazendo)
+# Migrations
 # */migrations/*
 # !*/migrations/__init__.py
 
-# IDEs / Editors
+# Test/coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Packaging/build
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+
+# IDE/editor
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# OS
+# OS files
 .DS_Store
 Thumbs.db
 
-# Coverage / tests
-.coverage
-htmlcov/
-.pytest_cache/
-
-# Build / dist
-build/
-dist/
-*.egg-info/
-
-# PostgreSQL dumps
-*.sql
-
-# Logs
+# Logs/temp
 logs/
-*.log
-
-# Docker (se usar depois)
 *.pid
-*.seed
 *.pid.lock
+*.seed
 
-# Node (caso frontend junto no repo)
+# Node (if frontend is added)
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
-# Secrets
-*.pem
-*.key
