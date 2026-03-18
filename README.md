@@ -29,7 +29,7 @@ de acordo com o perfil, e dashboards separados após login.
 ## 1) Clonar o repositorio
 
 ```bash
-git clone <URL_DO_REPOSITORIO>
+git clone https://github.com/leonardogranata/helpSister.git
 cd helpSister
 ```
 
@@ -63,7 +63,7 @@ python manage.py migrate
 ```
 
 Observacao:
-- `db.sqlite3` e local e nao deve subir para o GitHub.
+- `db.sqlite3` é local e nao deve subir para o GitHub.
 
 ## 5) Superusuario (opcional)
 
