@@ -1,6 +1,25 @@
-# Help Sister
+# 🍼 Help Sister
 
-Plataforma para conectar contratantes e cuidadoras.
+> Conectando famílias e cuidadoras com segurança, praticidade e confiança.
+
+## 📖 Sobre o projeto
+
+O **Help Sister** é uma plataforma que aproxima **contratantes** e **cuidadoras**.
+Cada tipo de usuário possui um fluxo de cadastro próprio, com campos obrigatórios
+de acordo com o perfil, e dashboards separados após login.
+
+## 🎯 Objetivos
+
+- Facilitar a contratação de cuidadoras
+- Dar mais segurança no processo de cadastro e contato
+- Organizar o fluxo de entrada e redirecionamento por perfil
+
+## 📱 Como funciona
+
+1. Usuário escolhe se é `contratante` ou `cuidadora`
+2. Preenche o cadastro com os campos obrigatórios do seu tipo
+3. Faz login
+4. O sistema redireciona automaticamente para o dashboard correto
 
 ## Requisitos
 
