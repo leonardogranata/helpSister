@@ -1,0 +1,10 @@
+<h2>Cadastro de Contratante</h2>
+
+<form method="POST">
+    {% csrf_token %}
+
+    <input type="email" name="email" placeholder="Email">
+    <input type="password" name="password" placeholder="Senha">
+
+    <button type="submit">Cadastrar</button>
+</form>
