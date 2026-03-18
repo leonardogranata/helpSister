@@ -1,10 +1,28 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+
 class User(AbstractUser):
     USER_TYPE_CHOICES = (
-        ('babysitter', 'Babá'),
-        ('contractor', 'Contratante'),
+        ("babysitter", "Baba"),
+        ("contractor", "Contratante"),
     )
 
-    user_type = models.CharField(max_length=20, choices=USER_TYPE_CHOICES)
+    user_type = models.CharField(max_length=20, choices=USER_TYPE_CHOICES, default="contractor")
+
+    email = models.EmailField("email address", unique=True)
+    cpf = models.CharField(max_length=14, unique=True, null=True, blank=True)
+    phone = models.CharField(max_length=20, blank=True, default="")
+    birth_date = models.DateField(null=True, blank=True)
+    profile_picture = models.ImageField(upload_to="profile_images/", null=True, blank=True)
+    city = models.CharField(max_length=100, blank=True, default="")
+    zip_code = models.CharField(max_length=10, blank=True, default="")
+    
+    street = models.CharField(max_length=255, blank=True, null=True)
+    number = models.CharField(max_length=10, blank=True, null=True)
+    neighborhood = models.CharField(max_length=100, blank=True, null=True)
+    service_radius = models.IntegerField(blank=True, null=True)
+    pix_key = models.CharField(max_length=100, blank=True, null=True)
+
+    def __str__(self):
+        return self.email
