@@ -1,110 +1,98 @@
-# 🍼 Help Sister
+# Help Sister
 
-> Conectando famílias a babás de confiança com segurança, praticidade e excelência.
+Plataforma para conectar contratantes e cuidadoras.
 
----
+## Requisitos
 
-## 📖 Sobre o Projeto
+- Python 3.12+
+- Git
 
-O **Help Sister** é um aplicativo mobile criado para facilitar e fortalecer a conexão entre famílias e babás profissionais. O projeto nasceu da percepção de que, apesar da crescente demanda por profissionais de cuidado infantil, o processo de encontrar alguém disponível, preparado e comprometido ainda é muito precário e frustrante para as famílias.
+## 1) Clonar o repositorio
 
-A plataforma funciona como uma **ponte confiável**, aproximando profissionais qualificadas de famílias que buscam apoio — seja para o dia a dia, eventos, emergências ou ocasiões especiais.
+```bash
+git clone <URL_DO_REPOSITORIO>
+cd helpSister
+```
 
----
+## 2) Criar e ativar ambiente virtual
 
-## 🎯 Objetivos
+Windows (PowerShell):
 
-- **Facilitar** o contato dos pais com as babás
-- **Assegurar** mão de obra confiável e qualificada para as famílias
-- **Viabilizar** para as profissionais um lugar seguro e garantido de trabalho
+```powershell
+py -m venv venv
+.\venv\Scripts\Activate.ps1
+```
 
----
+Linux/macOS:
 
-## 📱 Como Funciona
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
 
-Ao entrar no app, o usuário se identifica como **candidata** (babá) ou **contratante** (família). A partir disso, cada perfil passa por um fluxo personalizado:
+## 3) Instalar dependencias
 
-### 👩‍👧 Candidata (Babá)
-Responde um questionário completo com seções sobre:
-- Apresentação pessoal (nome, CPF, contato, endereço)
-- Experiências anteriores
-- Comportamento em situações reais
-- Postura e rotina profissional
-- Segurança e capacitação
-- Perfil pessoal e disponibilidade
+```bash
+pip install -r requirements.txt
+```
 
-### 👨‍👩‍👦 Contratante (Família)
-Responde um questionário com informações sobre:
-- Dados da família e das crianças
-- Rotina e necessidades da criança
-- Expectativas em relação à babá
-- Estilo familiar
-- Preferências de perfil
-- Disponibilidade e condições de trabalho
+## 4) Banco de dados (migracoes)
 
----
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
 
-## ✨ Funcionalidades
+Observacao:
+- `db.sqlite3` e local e nao deve subir para o GitHub.
 
-| Funcionalidade | Descrição |
-|---|---|
-| 📋 **Questionários** | Perfis detalhados para candidatas e contratantes |
-| 💬 **Chat** | Comunicação direta entre babás e famílias |
-| 📅 **Escala** | Visualização dos dias de trabalho agendados |
-| 💰 **Rendimento** | Controle de dias trabalhados e valores por dia |
-| 📖 **Regras e Bons Modos** | Seção exclusiva com código de conduta profissional |
-| 📦 **Pacotes** | Sistema de contratação com descontos progressivos |
+## 5) Superusuario (opcional)
 
----
+```bash
+python manage.py createsuperuser
+```
 
-## 💳 Modelo de Pagamento
+Depois acesse:
+- `http://127.0.0.1:8000/admin/`
 
-- **1º mês gratuito** para cadastro de candidatas e contratantes
-- **Taxa mensal** para contratantes (modelo similar a plataformas de streaming)
-- **Pagamento realizado pelo app**
-- Percentual do valor de cada serviço destinado à empresa
-- **Pacotes com desconto progressivo**: quanto mais dias contratados antecipadamente, maior o desconto
-- Possibilidade de **contratação fixa** com preferência por uma profissional específica
+## 6) Rodar o projeto
 
----
+```bash
+python manage.py runserver
+```
 
-## 📐 Design
+Acesse:
+- `http://127.0.0.1:8000/`
 
-O app segue as seguintes diretrizes visuais:
+## Upload de imagens (pasta media)
 
-- 🎨 **Paleta de cores:** Roxo escuro, roxo claro e branco
-- 🔤 **Tipografia:** Letras grandes com fonte padrão
-- ✍️ **Conteúdo:** Interface com pouco texto, objetiva e clara
-- 📲 **Navegação:** Barra inferior com ícones de acesso rápido
+O projeto usa:
+- `MEDIA_URL = /media/`
+- `MEDIA_ROOT = media/`
+- Fotos de perfil em `media/profile_images/`
 
----
+Voce pode criar manualmente, se quiser:
 
-## 📏 Regras e Boas Práticas
+```bash
+mkdir -p media/profile_images
+```
 
-O app conta com uma seção exclusiva de **Regras e Bons Modos** para orientar as profissionais, abrangendo:
+No Windows PowerShell:
 
-- ⏰ Pontualidade e Compromisso
-- 🔒 Privacidade e Confidencialidade
-- 🗣️ Comunicação e Segurança
-- 🏠 Conduta na Casa
-- 🥗 Alimentação e Higiene da Criança
-- 🧹 Ambientes e Organização
-- ⚖️ Conduta Ética
-- 👔 Postura Profissional
-- 👗 Aparência e Apresentação
-- 🧒 Interação com a Criança
-- 💡 Atitude Proativa
-- 🤝 Respeito ao Estilo da Família
-- 🤫 Discrição
+```powershell
+New-Item -ItemType Directory -Path media\profile_images -Force
+```
 
----
+Se a pasta nao existir, o Django normalmente cria no primeiro upload.
 
-## 🚀 Status do Projeto
+## Estrutura (resumo)
 
-> 🟡 Em planejamento e desenvolvimento
+- `core`: fluxo geral, landing e redirecionamento de dashboard
+- `accounts`: usuario, login/logout e cadastro
+- `profiles`: dados especificos por tipo de usuario
 
----
+## Dicas rapidas
 
-## 📄 Licença
-
-Este projeto está sob licença privada. Todos os direitos reservados © Help Sister 2025.
+- Sempre rode `python manage.py migrate` ao baixar novas alteracoes.
+- Em desenvolvimento, mantenha `DEBUG=True`.
+- Nao comite `.env`, `venv/`, `db.sqlite3` e `media/`.
