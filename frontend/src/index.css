@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600&family=Jost:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+:root {
+  --color-purple-dark:   #1a0533;
+  --color-purple:        #6105A6;
+  --color-purple-mid:    #A066CD;
+  --color-purple-light:  #C088ED;
+  --color-lavender:      #ede9fe;
+  --color-bg:            #F8F0FF;
+  --color-text-dark:     #1a0533;
+  --color-text-body:     #4b5563;
+  --color-text-muted:    #9ca3af;
+  --color-white:         #FBFBFB;
+  --font-display:        'Cormorant Garamond', serif;
+  --font-body:           'Outfit', sans-serif;
+  --font-alt:            'Jost', sans-serif;
+  --spacing-section:     6rem;
+  --max-width:           1200px;
+  --radius-sm:           8px;
+  --radius-md:           16px;
+  --radius-lg:           24px;
+  --radius-full:         999px;
+  --shadow-sm:           0 2px 8px rgba(109, 40, 217, 0.08);
+  --shadow-md:           0 8px 24px rgba(109, 40, 217, 0.12);
+  --shadow-lg:           0 16px 48px rgba(109, 40, 217, 0.18);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  color: var(--color-text-dark);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: var(--font-body);
+}
