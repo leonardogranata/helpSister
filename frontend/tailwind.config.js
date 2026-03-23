@@ -14,6 +14,8 @@ export default {
         'hs-lavender':     '#ede9fe',
         'hs-bg':           '#F8F0FF',
         'hs-white':        '#FBFBFB',
+        'hs-textbody':     '#4b5563',
+        'hs-black':        '#1E1E1E',   
       },
       fontFamily: {
         display: ['"Cormorant Garamond"', 'serif'],

@@ -1,79 +1,11 @@
-.navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  background: var(--color-purple-dark);
-  border-bottom: 1px solid rgba(192, 136, 237, 0.15);
+.navLink {
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.container {
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 0 1.5rem;
-  height: 68px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.logo img {
-  height: 5.5vh;
-  width: auto;
-}
-
-.links {
-  display: flex;
-  list-style: none;
-  gap: 2rem;
-}
-
-.links a {
-  font-family: var(--font-body);
-  font-size: 1rem;
-  font-weight: lighter;
-  color: var(--color-white);
-  transition: color 0.2s;
-}
-
-.links a:hover {
-  color: var(--color-purple-light);
-}
-
-.actions {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.btnOutline {
-  font-family: var(--font-alt);
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--color-white);
-  padding: 0.4rem 1.3rem;
-  border-radius: var(--radius-full);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  transition: all 0.2s;
-}
-
-.btnOutline:hover {
-  border-color: var(--color-white);
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.btnPrimary {
-  font-family: var(--font-alt);
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--color-white);
-  background: linear-gradient(to right , var(--color-purple-light) , var(--color-purple));
-  padding: 0.5rem 1.25rem;
-  border-radius: var(--radius-full);
-  transition:  0.2s, transform 0.15s;
-}
-
-.btnPrimary:hover {
-  transform: translateY(-2px);
+.navLink:hover {
+  background-color: #bf88ed62;
+  color: #fff;
 }

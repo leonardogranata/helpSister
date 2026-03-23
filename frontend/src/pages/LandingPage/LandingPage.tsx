@@ -1,10 +1,14 @@
 import Navbar from '../../components/layout/Navbar/Navbar'
-import styles from './LandingPage.module.css'
+import HeroBanner from '../../components/sections/HeroBanner/HeroBanner'
+import ProblemSection from '../../components/sections/ProblemSection/ProblemSection'
 
 export default function LandingPage() {
   return (
-    <main className={styles.page}>
+    <main>
       <Navbar />
+      <HeroBanner />
+      <hr className='border-black/20'/>
+      <ProblemSection />
     </main>
   )
 }
