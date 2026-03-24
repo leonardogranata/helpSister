@@ -26,8 +26,8 @@ export default function ProblemSection() {
     <section className='w-full bg-hs-bg py-20 md:py-28'>
       <div className='max-w-content mx-auto px-6 flex flex-col md:flex-row items-start gap-14 md:gap-20'>
         <div className='flex-1 flex flex-col gap-5 max-w-full md:max-w-[400px]'>
-          <span className='inline-flex items-center gap-1.5 font-alt text-sm font-normal text-hs-purple bg-hs-purple/[0.08] border border-hs-purple/20 px-4 py-1.5 rounded-full tracking-wide w-fit'>
-            • O Problema
+          <span className='inline-flex items-center gap-1.5 font-alt text-xs font-normal text-hs-purple bg-hs-purple/[0.08] border border-hs-purple/20 px-4 py-1.5 rounded-full tracking-wide w-fit'>
+            • O PROBLEMA
           </span>
 
           <h2 className='font-display font-semibold text-hs-purple-dark leading-[1.15] tracking-wide text-[clamp(1.9rem,7vw,2.8rem)]'>

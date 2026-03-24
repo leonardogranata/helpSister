@@ -12,13 +12,13 @@ export default function HeroBanner() {
 
         <div className="flex-1 flex flex-col items-center md:items-start gap-5 text-center md:text-left max-w-full md:max-w-[480px]">
 
-          <span className="inline-flex items-center gap-1.5 font-alt text-sm font-normal text-hs-purple bg-hs-purple/[0.08] border border-hs-purple/20 px-4 py-1.5 rounded-full tracking-wide">
-            • Plataforma de Babás Verificadas
+          <span className="inline-flex items-center gap-1.5 font-alt text-xs font-normal text-hs-purple bg-hs-purple/[0.08] border border-hs-purple/20 px-4 py-1.5 rounded-full tracking-wide">
+            • PLATAFORMA DE BABÁS VERIFICADAS
           </span>
 
           <h1 className="font-display font-semibold text-hs-purple-dark leading-[1.15] tracking-tight text-[clamp(2rem,5vw,3.2rem)]">
             Seu filho em{' '}
-            <em className="not-italic italic text-hs-purple-mid font-light">
+            <em className=" italic text-hs-purple-mid font-light">
               boas<br />mãos.
             </em>{' '}
             Você com a<br className="hidden sm:block" /> paz que merece.
