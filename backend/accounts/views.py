@@ -1,5 +1,9 @@
 from django.contrib.auth import authenticate, login, logout
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
+
+from cep import buscar_dados_cep
+
 from .forms import BabysitterRegisterForm, ContractorRegisterForm
 
 
@@ -55,3 +59,16 @@ def registerContractor(request):
         form = ContractorRegisterForm()
 
     return render(request, "register_contractor.html", {"form": form})
+
+
+def lookupCep(request):
+    cep = request.GET.get("cep", "")
+    dados = buscar_dados_cep(cep)
+
+    if not dados:
+        return JsonResponse(
+            {"ok": False, "message": "CEP invalido ou nao encontrado."},
+            status=404,
+        )
+
+    return JsonResponse({"ok": True, "data": dados})

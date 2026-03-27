@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.templatetags.static import static
 
 
 class User(AbstractUser):
@@ -16,6 +17,7 @@ class User(AbstractUser):
     birth_date = models.DateField(null=True, blank=True)
     profile_picture = models.ImageField(upload_to="profile_images/", null=True, blank=True)
     city = models.CharField(max_length=100, blank=True, default="")
+    state = models.CharField(max_length=2, blank=True, default="")
     zip_code = models.CharField(max_length=10, blank=True, default="")
     
     street = models.CharField(max_length=255, blank=True, null=True)
@@ -26,3 +28,12 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email
+
+    @property
+    def profile_picture_url(self):
+        if self.profile_picture:
+            try:
+                return self.profile_picture.url
+            except ValueError:
+                pass
+        return static("accounts/images/default_profile.png")
