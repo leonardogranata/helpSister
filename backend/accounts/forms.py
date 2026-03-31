@@ -1,11 +1,17 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from PIL import Image, UnidentifiedImageError
 
 from .models import User
 from profiles.models import BabysitterProfile, ContractorProfile
 
 
 class BaseRegisterForm(forms.ModelForm):
+    profile_picture = forms.FileField(
+        required=False,
+        label="Foto de perfil",
+        widget=forms.ClearableFileInput(attrs={"accept": "image/*"}),
+    )
     password = forms.CharField(widget=forms.PasswordInput, label="Senha")
     confirm_password = forms.CharField(widget=forms.PasswordInput, label="Confirmar senha")
 
@@ -19,14 +25,20 @@ class BaseRegisterForm(forms.ModelForm):
             "cpf",
             "birth_date",
             "profile_picture",
-            "city",
             "zip_code",
+            "street",
+            "neighborhood",
+            "city",
+            "state",
         ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for name in self.Meta.fields:
             self.fields[name].required = True
+
+        self.fields["profile_picture"].required = False
+        self.fields["state"].max_length = 2
         self.fields["password"].required = True
         self.fields["confirm_password"].required = True
 
@@ -49,6 +61,24 @@ class BaseRegisterForm(forms.ModelForm):
         if password and confirm_password and password != confirm_password:
             raise ValidationError("As senhas nao coincidem.")
         return cleaned_data
+
+    def clean_state(self):
+        state = self.cleaned_data.get("state", "")
+        return (state or "").upper()
+
+    def clean_profile_picture(self):
+        arquivo = self.cleaned_data.get("profile_picture")
+        if not arquivo:
+            return None
+
+        try:
+            arquivo.seek(0)
+            imagem = Image.open(arquivo)
+            imagem.verify()
+            arquivo.seek(0)
+            return arquivo
+        except (UnidentifiedImageError, OSError, ValueError):
+            return None
 
     def save_user(self, user_type):
         user = super().save(commit=False)

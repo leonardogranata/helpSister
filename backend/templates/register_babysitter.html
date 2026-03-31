@@ -5,3 +5,55 @@
     {{ form.as_p }}
     <button type="submit">Cadastrar</button>
 </form>
+
+<script>
+    (function () {
+        const cepInput = document.getElementById("id_zip_code");
+        if (!cepInput) return;
+
+        const cityInput = document.getElementById("id_city");
+        const stateInput = document.getElementById("id_state");
+        const streetInput = document.getElementById("id_street");
+        const neighborhoodInput = document.getElementById("id_neighborhood");
+
+        let debounceId = null;
+
+        function normalizarCep(valor) {
+            return (valor || "").replace(/\D/g, "");
+        }
+
+        function preencherCampos(data) {
+            if (streetInput && data.logradouro) streetInput.value = data.logradouro;
+            if (neighborhoodInput && data.bairro) neighborhoodInput.value = data.bairro;
+            if (cityInput && data.cidade) cityInput.value = data.cidade;
+            if (stateInput && data.estado) stateInput.value = data.estado;
+        }
+
+        async function consultarCep(cep) {
+            try {
+                const response = await fetch(`/accounts/lookup-cep/?cep=${cep}`);
+                if (!response.ok) return;
+
+                const payload = await response.json();
+                if (payload.ok && payload.data) {
+                    preencherCampos(payload.data);
+                }
+            } catch (error) {
+                console.error("Erro ao buscar CEP:", error);
+            }
+        }
+
+        function onCepChange() {
+            const cep = normalizarCep(cepInput.value);
+            if (cep.length !== 8) return;
+
+            clearTimeout(debounceId);
+            debounceId = setTimeout(() => {
+                consultarCep(cep);
+            }, 250);
+        }
+
+        cepInput.addEventListener("input", onCepChange);
+        cepInput.addEventListener("blur", onCepChange);
+    })();
+</script>
