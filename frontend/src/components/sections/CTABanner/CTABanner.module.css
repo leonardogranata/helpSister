@@ -1,0 +1,29 @@
+.section {
+  background: linear-gradient(to right, var(--color-purple), var(--color-purple-dark))
+}
+
+.label {
+  color: rgba(255, 255, 255, 0.6);
+  font-family: var(--font-alt);
+}
+
+.title {
+  color: var(--color-white);
+  font-family: var(--font-display);
+}
+
+.subtitle {
+  color: rgba(255, 255, 255, 0.7);
+  font-family: var(--font-body);
+}
+
+.btn {
+  background: var(--color-white);
+  color: var(--color-purple);
+  font-family: var(--font-body);
+}
+
+.trust {
+  color: rgba(255, 255, 255, 0.5);
+  font-family: var(--font-body);
+}

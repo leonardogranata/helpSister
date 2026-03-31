@@ -1,4 +1,6 @@
 import Navbar from '../../components/layout/Navbar/Navbar'
+import Footer from '../../components/layout/Footer/Footer'
+import CTABanner from '../../components/sections/CTABanner/CTABanner'
 import HeroBanner from '../../components/sections/HeroBanner/HeroBanner'
 import ProblemSection from '../../components/sections/ProblemSection/ProblemSection'
 import SolutionSection from '../../components/sections/SolutionSection/SolutionSection'
@@ -15,6 +17,8 @@ export default function LandingPage() {
       <SolutionSection />
       <ThreeSteps />
       <TrustSection />
+      <CTABanner />
+      <Footer />
     </main>
   )
 }
