@@ -33,11 +33,12 @@
  */
 
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faHouse, faHeart, faEye, faEyeSlash, faShield, faStar } from '@fortawesome/free-solid-svg-icons'
 import { faGoogle, faApple, faFacebookF } from '@fortawesome/free-brands-svg-icons'
 import logo from '../../assets/logo_login.png'
+import { loginUser, saveAuthSession } from '../../services/auth'
 
 // ─── Tipos ───────────────────────────────────────────────────────────────────
 
@@ -89,8 +90,10 @@ const leftPanelContent = {
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const initialType = (searchParams.get('tipo') as UserType) || 'contratante'
 
-  const [userType, setUserType]       = useState<UserType>('contratante')
+  const [userType, setUserType]       = useState<UserType>(initialType)
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading]     = useState(false)
   const [error, setError]             = useState<string | null>(null)
@@ -145,9 +148,12 @@ export default function LoginPage() {
        *
        * Por enquanto (mock), simular delay e redirecionar:
        */
-      await new Promise(resolve => setTimeout(resolve, 800))
-      console.log('Login (mock):', { ...formData, user_type: userType })
-      // TODO: remover mock e ativar integração acima
+      const authData = await loginUser({
+        email: formData.email,
+        password: formData.password,
+        userType,
+      })
+      saveAuthSession(authData)
       navigate('/')
 
     } catch (err) {
@@ -397,3 +403,4 @@ export default function LoginPage() {
     </div>
   )
 }
+

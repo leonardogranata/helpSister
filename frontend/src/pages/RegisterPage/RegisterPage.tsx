@@ -1,4 +1,4 @@
-/**
+﻿/**
  * RegisterPage.tsx
  * Página de cadastro da plataforma Help Sister — 4 passos.
  *
@@ -71,6 +71,7 @@ import {
   faCheck, faCamera, faSpinner,
 } from '@fortawesome/free-solid-svg-icons'
 import logo from '../../assets/logo_login.png'
+import { registerUser, saveAuthSession } from '../../services/auth'
 
 // ─── Tipos ───────────────────────────────────────────────────────────────────
 
@@ -96,10 +97,15 @@ interface Step3Data {
   profile_photo: File | null
   cep: string
   address_number: string
+  street: string
+  neighborhood: string
+  city: string
+  state: string
   // Contratante:
   preferred_caregiver_age: string
   // Cuidadora:
   service_radius_km: string
+  pix_key: string
 }
 
 // ─── Masks ───────────────────────────────────────────────────────────────────
@@ -199,8 +205,16 @@ export default function RegisterPage() {
     password: '', password_confirm: '', birth_date: '', accepted_terms: false,
   })
   const [step3, setStep3] = useState<Step3Data>({
-    profile_photo: null, cep: '', address_number: '',
-    preferred_caregiver_age: '', service_radius_km: '',
+    profile_photo: null,
+    cep: '',
+    address_number: '',
+    street: '',
+    neighborhood: '',
+    city: '',
+    state: '',
+    preferred_caregiver_age: '',
+    service_radius_km: '',
+    pix_key: '',
   })
 
   const content = getLeftContent(userType, step)
@@ -229,7 +243,7 @@ export default function RegisterPage() {
     const { name, value } = e.target
     setStep3(prev => ({
       ...prev,
-      [name]: name === 'cep' ? maskCEP(value) : value,
+      [name]: name === 'cep' ? maskCEP(value) : name === 'state' ? value.toUpperCase().slice(0, 2) : value,
     }))
   }
 
@@ -249,8 +263,13 @@ export default function RegisterPage() {
       const res = await fetch(`https://viacep.com.br/ws/${raw}/json/`)
       const data = await res.json()
       if (!data.erro) {
-        // Aqui poderia preencher logradouro/bairro/cidade se tiver esses campos
-        console.log('CEP encontrado:', data)
+        setStep3(prev => ({
+          ...prev,
+          street: prev.street || (data.logradouro ?? ''),
+          neighborhood: prev.neighborhood || (data.bairro ?? ''),
+          city: prev.city || (data.localidade ?? ''),
+          state: prev.state || (data.uf ?? ''),
+        }))
       }
     } catch {
       // Ignorar erros silenciosamente — campo continua editável
@@ -278,9 +297,14 @@ export default function RegisterPage() {
 
   function validateStep3(): string | null {
     if (step3.cep.replace(/\D/g, '').length !== 8) return 'Informe um CEP válido.'
+    if (!step3.street.trim()) return 'Informe a rua.'
     if (!step3.address_number.trim()) return 'Informe o número do endereço.'
+    if (!step3.neighborhood.trim()) return 'Informe o bairro.'
+    if (!step3.city.trim()) return 'Informe a cidade.'
+    if (!step3.state.trim() || step3.state.trim().length !== 2) return 'Informe o estado com 2 letras.'
     if (userType === 'contratante' && !step3.preferred_caregiver_age) return 'Selecione uma preferência de idade.'
     if (userType === 'cuidadora'   && !step3.service_radius_km)       return 'Selecione o raio de atendimento.'
+    if (userType === 'cuidadora'   && !step3.pix_key.trim())          return 'Informe a chave PIX.'
     return null
   }
 
@@ -307,57 +331,32 @@ export default function RegisterPage() {
     setError(null)
 
     try {
-      /*
-       * ── INTEGRAÇÃO BACKEND ──────────────────────────────────────────────
-       * Descomentar e adaptar quando o backend Django estiver pronto:
-       *
-       * const formData = new FormData()
-       * formData.append('user_type',   userType)
-       * formData.append('first_name',  step1.first_name)
-       * formData.append('last_name',   step1.last_name)
-       * formData.append('email',       step1.email)
-       * formData.append('phone',       step1.phone)
-       * formData.append('cpf',         step1.cpf.replace(/\D/g, ''))
-       * formData.append('password',    step2.password)
-       * formData.append('birth_date',  step2.birth_date)
-       * formData.append('cep',         step3.cep.replace(/\D/g, ''))
-       * formData.append('address_number', step3.address_number)
-       *
-       * if (userType === 'contratante') {
-       *   formData.append('preferred_caregiver_age', step3.preferred_caregiver_age)
-       * } else {
-       *   formData.append('service_radius_km', step3.service_radius_km)
-       * }
-       *
-       * if (step3.profile_photo) {
-       *   formData.append('profile_photo', step3.profile_photo)
-       * }
-       *
-       * const response = await fetch('/api/auth/register/', {
-       *   method: 'POST',
-       *   body: formData,  // NÃO definir Content-Type — o browser faz automaticamente com boundary
-       * })
-       *
-       * if (!response.ok) {
-       *   const data = await response.json()
-       *   // Django REST Framework retorna erros por campo: { email: ["já existe"], ... }
-       *   const firstError = Object.values(data).flat()[0]
-       *   throw new Error(typeof firstError === 'string' ? firstError : 'Erro ao criar conta.')
-       * }
-       *
-       * const { token, user } = await response.json()
-       * localStorage.setItem('hs_token', token)
-       * localStorage.setItem('hs_user', JSON.stringify(user))
-       *
-       * // Redirecionar para verificação de e-mail ou dashboard
-       * navigate('/verificar-email')
-       * ───────────────────────────────────────────────────────────────────
-       *
-       * Por enquanto (mock):
-       */
-      await new Promise(resolve => setTimeout(resolve, 1200))
-      console.log('Cadastro (mock):', { userType, step1, step2, step3 })
-      // TODO: remover mock e ativar integração acima
+      const payload = new FormData()
+      payload.append('user_type', userType)
+      payload.append('first_name', step1.first_name.trim())
+      payload.append('last_name', step1.last_name.trim())
+      payload.append('email', step1.email.trim())
+      payload.append('phone', step1.phone)
+      payload.append('cpf', step1.cpf)
+      payload.append('password', step2.password)
+      payload.append('confirm_password', step2.password_confirm)
+      payload.append('password_confirm', step2.password_confirm)
+      payload.append('birth_date', step2.birth_date)
+      payload.append('zip_code', step3.cep)
+      payload.append('street', step3.street.trim())
+      payload.append('number', step3.address_number.trim())
+      payload.append('neighborhood', step3.neighborhood.trim())
+      payload.append('city', step3.city.trim())
+      payload.append('state', step3.state.trim())
+      payload.append('service_radius', step3.service_radius_km)
+      payload.append('pix_key', step3.pix_key.trim())
+
+      if (step3.profile_photo) {
+        payload.append('profile_picture', step3.profile_photo)
+      }
+
+      const authData = await registerUser(payload)
+      saveAuthSession(authData)
       navigate('/')
 
     } catch (err) {
@@ -717,6 +716,41 @@ export default function RegisterPage() {
                   </Field>
                 </div>
 
+                <div className="flex gap-3">
+                  <Field label="RUA">
+                    <input
+                      type="text" name="street" value={step3.street}
+                      onChange={handleStep3Change} placeholder="Rua / Avenida"
+                      className={inputClass}
+                    />
+                  </Field>
+                  <Field label="BAIRRO">
+                    <input
+                      type="text" name="neighborhood" value={step3.neighborhood}
+                      onChange={handleStep3Change} placeholder="Seu bairro"
+                      className={inputClass}
+                    />
+                  </Field>
+                </div>
+
+                <div className="flex gap-3">
+                  <Field label="CIDADE">
+                    <input
+                      type="text" name="city" value={step3.city}
+                      onChange={handleStep3Change} placeholder="Sua cidade"
+                      className={inputClass}
+                    />
+                  </Field>
+                  <Field label="UF">
+                    <input
+                      type="text" name="state" value={step3.state}
+                      onChange={handleStep3Change} placeholder="SP"
+                      maxLength={2}
+                      className={inputClass}
+                    />
+                  </Field>
+                </div>
+
                 {/* Campo condicional por tipo */}
                 {userType === 'contratante' ? (
                   <Field label="PREFERÊNCIA DE IDADE">
@@ -740,6 +774,7 @@ export default function RegisterPage() {
                     </select>
                   </Field>
                 ) : (
+                  <>
                   <Field label="RAIO DE ATENDIMENTO">
                     {/*
                      * TODO (Backend): ajustar os valores conforme o campo
@@ -760,6 +795,15 @@ export default function RegisterPage() {
                       <option value="50">Até 50 km</option>
                     </select>
                   </Field>
+                  
+                <Field label="CHAVE PIX">
+                  <input
+                    type="text" name="pix_key" value={step3.pix_key}
+                    onChange={handleStep3Change} placeholder="CPF, e-mail, telefone ou aleatória"
+                    className={inputClass}
+                  />
+                </Field>
+                  </>
                 )}
               </div>
             </>
