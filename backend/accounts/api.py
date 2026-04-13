@@ -80,11 +80,11 @@ def login_api(request):
     password = request.data.get('password')
 
     if not email or not password:
-        return Response({'detail': 'Email and password required.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'detail': 'Email e senha nescessários.'}, status=status.HTTP_400_BAD_REQUEST)
 
     user = authenticate(request, username=email, password=password)
     if user is None:
-        return Response({'detail': 'Invalid credentials.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'detail': 'Credenciais Inválidas.'}, status=status.HTTP_400_BAD_REQUEST)
 
     requested_user_type = request.data.get('user_type')
     if requested_user_type and user.user_type != _normalize_user_type(requested_user_type):
