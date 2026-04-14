@@ -34,8 +34,9 @@
 
 import { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faHouse, faHeart, faEye, faEyeSlash, faShield, faStar } from '@fortawesome/free-solid-svg-icons'
+import { faHouse, faHeart, faEye, faEyeSlash, faShield, faStar, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import { faGoogle, faApple, faFacebookF } from '@fortawesome/free-brands-svg-icons'
 import logo from '../../assets/logo_login.png'
 import { loginUser, saveAuthSession } from '../../services/auth'
@@ -166,7 +167,23 @@ export default function LoginPage() {
   // ─── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-hs-bg flex flex-col items-center justify-center py-12 px-5">
+    <motion.div
+      className="min-h-screen bg-hs-bg flex flex-col items-center justify-center py-12 px-5"
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -18 }}
+      transition={{ duration: 0.28, ease: 'easeInOut' }}
+    >
+
+      {/* Botão voltar — canto superior esquerdo */}
+      <Link
+        to="/"
+        className="fixed top-4 left-4 z-50 flex items-center gap-2 font-alt text-sm font-semibold text-hs-purple hover:text-hs-purple-dark bg-white/90 backdrop-blur-sm border border-hs-purple/20 rounded-full px-4 py-2 shadow-sm hover:shadow-md transition-all duration-200"
+        aria-label="Voltar para a página inicial"
+      >
+        <FontAwesomeIcon icon={faArrowLeft} className="text-xs" />
+        <span>Voltar</span>
+      </Link>
 
       {/* Logo mobile (topo da página no mobile) */}
       <Link to="/" className="lg:hidden mb-8">
@@ -400,7 +417,7 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
 

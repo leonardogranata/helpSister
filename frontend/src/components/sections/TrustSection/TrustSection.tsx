@@ -1,6 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faShield, faLock, faCircleCheck, faRotate } from '@fortawesome/free-solid-svg-icons'
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core'
+import { motion } from 'framer-motion'
 
 interface Feature {
   icon: IconDefinition
@@ -33,6 +34,13 @@ const features: Feature[] = [
 
 export default function TrustSection() {
   return (
+        <motion.div
+          className="flex flex-col items-center text-center gap-5 mb-16"
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.55, ease: 'easeOut' }}
+        >
     <section className="w-full bg-hs-bg py-20 md:py-28">
       <div className="max-w-content mx-auto px-6">
         <div className="flex flex-col md:flex-row gap-12 md:gap-16 items-start">
@@ -114,5 +122,6 @@ export default function TrustSection() {
         </div>
       </div>
     </section>
+    </motion.div>
   )
 }

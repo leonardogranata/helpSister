@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion'
 import heroBaby from '../../../assets/hero-image.png'
 
 export default function HeroBanner() {
@@ -10,8 +11,12 @@ export default function HeroBanner() {
           <div className='absolute -bottom-24 -right-24 w-[420px] h-[420px] rounded-full bg-hs-purple-light/25 blur-[100px]'></div>
         </div>
 
-        <div className="flex-1 flex flex-col items-center md:items-start gap-5 text-center md:text-left max-w-full md:max-w-[480px]">
-
+        <motion.div
+          className="flex-1 flex flex-col items-center md:items-start gap-5 text-center md:text-left max-w-full md:max-w-[480px]"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: 'easeOut', delay: 0.15 }}
+        >
           <span className="inline-flex items-center gap-1.5 font-alt text-xs font-normal text-hs-purple bg-hs-purple/[0.08] border border-hs-purple/20 px-4 py-1.5 rounded-full tracking-wide">
             • PLATAFORMA DE BABÁS VERIFICADAS
           </span>
@@ -43,9 +48,14 @@ export default function HeroBanner() {
               Como Funciona
             </a>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="flex-1 flex justify-center items-center max-w-[340px] sm:max-w-[420px] md:max-w-[520px] w-full mx-auto">
+        <motion.div
+          className="flex-1 flex justify-center items-center max-w-[340px] sm:max-w-[420px] md:max-w-[520px] w-full mx-auto"
+          initial={{ opacity: 0, scale: 0.94 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.7, ease: 'easeOut', delay: 0.35 }}
+        >
           <div className="relative w-full aspect-square rounded-full flex items-center justify-center">
             <img
               src={heroBaby}
@@ -53,7 +63,7 @@ export default function HeroBanner() {
               className="w-[88%] h-[88%] object-contain relative z-10"
             />
           </div>
-        </div>
+        </motion.div>
 
       </div>
     </section>

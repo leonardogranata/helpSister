@@ -6,6 +6,7 @@ import ProblemSection from '../../components/sections/ProblemSection/ProblemSect
 import SolutionSection from '../../components/sections/SolutionSection/SolutionSection'
 import ThreeSteps from '../../components/sections/ThreeSteps/ThreeSteps'
 import TrustSection from '../../components/sections/TrustSection/TrustSection'
+import { motion } from 'framer-motion'
 
 export default function LandingPage() {
   return (

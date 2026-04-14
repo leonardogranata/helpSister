@@ -1,16 +1,27 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { AnimatePresence } from 'framer-motion'
 import LandingPage    from './pages/LandingPage/LandingPage'
 import LoginPage      from './pages/LoginPage/LoginPage'
 import RegisterPage   from './pages/RegisterPage/RegisterPage'
 
+function AnimatedRoutes() {
+  const location = useLocation()
+
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/"         element={<LandingPage />} />
+        <Route path="/entrar"   element={<LoginPage />} />
+        <Route path="/cadastro" element={<RegisterPage />} />
+      </Routes>
+    </AnimatePresence>
+  )
+}
+
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/"        element={<LandingPage />} />
-        <Route path="/entrar"  element={<LoginPage />} />
-        <Route path="/cadastro" element={<RegisterPage />} />
-      </Routes>
+      <AnimatedRoutes />
     </BrowserRouter>
   )
 }

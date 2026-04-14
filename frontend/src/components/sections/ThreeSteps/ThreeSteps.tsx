@@ -1,3 +1,5 @@
+import { motion } from 'framer-motion'
+
 interface Step {
   number: number
   title: string
@@ -30,7 +32,13 @@ export default function ThreeSteps() {
     <section className="w-full bg-hs-bg py-20 md:py-28">
       <div className="max-w-content mx-auto px-6">
 
-        <div className="flex flex-col items-center text-center gap-5 mb-16">
+        <motion.div
+          className="flex flex-col items-center text-center gap-5 mb-16"
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.55, ease: 'easeOut' }}
+        >
           <span className="inline-flex items-center gap-1.5 font-alt text-xs font-normal text-hs-purple bg-hs-purple/[0.08] border border-hs-purple/20 px-4 py-1.5 rounded-full tracking-wide">
             • COMO FUNCIONA
           </span>
@@ -43,7 +51,7 @@ export default function ThreeSteps() {
           <p className="font-body text-[0.9rem] leading-[1.75] text-hs-purple-dark/55 max-w-[440px]">
             Simples do início ao fim — para pais e babás
           </p>
-        </div>
+        </motion.div>
 
         <div className="relative flex flex-col md:flex-row items-start gap-10 md:gap-0">
 
@@ -53,9 +61,15 @@ export default function ThreeSteps() {
             aria-hidden="true"
           />
 
-          {steps.map((step) => (
-            <div key={step.number} className="relative flex flex-col items-start md:flex-1">
-
+          {steps.map((step, i) => (
+            <motion.div
+              key={step.number}
+              className="relative flex flex-col items-start md:flex-1"
+              initial={{ opacity: 0, y: 28 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.5, ease: 'easeOut', delay: i * 0.15 }}
+            >
               <div
                 className={[
                   'relative z-10 w-12 h-12 shrink-0 rounded-2xl flex items-center justify-center shadow-sm mb-6',
@@ -77,7 +91,7 @@ export default function ThreeSteps() {
                   {step.description}
                 </p>
               </div>
-            </div>
+            </motion.div>
           ))}
 
         </div>

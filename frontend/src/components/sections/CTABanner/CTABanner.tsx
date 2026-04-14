@@ -1,7 +1,15 @@
 import styles from './CTABanner.module.css'
+import { motion } from 'framer-motion'
 
 export default function CTABanner() {
   return (
+     <motion.div
+          className="flex flex-col items-center text-center gap-5 mb-16"
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.55, ease: 'easeOut' }}
+        >
     <section className="w-full bg-hs-bg py-20 md:py-28">
       <div className="max-w-content mx-auto px-6">
         <div className={`${styles.section} rounded-3xl px-8 py-20 flex flex-col items-center text-center gap-5`}>
@@ -23,5 +31,6 @@ export default function CTABanner() {
         </div>
       </div>
     </section>
+    </motion.div>
   )
 }

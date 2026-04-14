@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faShield, faCircleCheck, faLock, faDatabase } from '@fortawesome/free-solid-svg-icons'
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core'
@@ -35,13 +36,16 @@ export default function SolutionSection() {
   return (
     <section className="w-full bg-hs-bg py-20 md:py-28">
       <div className="max-w-content mx-auto px-6">
-
-
         <div className="bg-hs-lavender/60 rounded-3xl px-8 py-14 md:px-16 md:py-16">
 
- 
-          <div className="flex flex-col items-center text-center gap-5 mb-14">
-            <span className="inline-flex items-center gap-1.5  font-alt text-xs font-normal text-hs-purple bg-hs-purple/[0.08] border border-hs-purple/20 px-4 py-1.5 rounded-full tracking-wide">
+          <motion.div
+            className="flex flex-col items-center text-center gap-5 mb-14"
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.55, ease: 'easeOut' }}
+          >
+            <span className="inline-flex items-center gap-1.5 font-alt text-xs font-normal text-hs-purple bg-hs-purple/[0.08] border border-hs-purple/20 px-4 py-1.5 rounded-full tracking-wide">
                • NOSSA SOLUÇÃO
             </span>
 
@@ -54,15 +58,18 @@ export default function SolutionSection() {
             <p className="font-body text-[0.9rem] leading-[1.75] text-hs-purple-dark/55 max-w-[440px]">
               A Help Sister torna esse processo simples, seguro e humano do início ao fim.
             </p>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            {cards.map(({ icon, title, description }) => (
-              <div
+            {cards.map(({ icon, title, description }, i) => (
+              <motion.div
                 key={title}
                 className="bg-white/80 rounded-2xl px-7 py-8 flex flex-col gap-4 border border-hs-purple-light/15 hover:border-hs-purple-light/40 hover:shadow-md transition-all duration-200"
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.45, ease: 'easeOut', delay: i * 0.1 }}
               >
-   
                 <div className="w-10 h-10 rounded-xl bg-hs-purple/10 flex items-center justify-center">
                   <FontAwesomeIcon icon={icon} className="text-hs-purple text-base" />
                 </div>
@@ -75,7 +82,7 @@ export default function SolutionSection() {
                     {description}
                   </p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
 
