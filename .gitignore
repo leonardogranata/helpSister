@@ -41,10 +41,16 @@ dist/
 pip-wheel-metadata/
 
 # IDE/editor
-.vscode/
+.vscode/*
+!.vscode/extensions.json
 .idea/
 *.swp
 *.swo
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
 # OS files
 .DS_Store
@@ -61,5 +67,9 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+dist-ssr/
+*.local
 
 .claude
