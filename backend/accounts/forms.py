@@ -1,5 +1,8 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import InMemoryUploadedFile
+import io
+import os
 from PIL import Image, UnidentifiedImageError
 
 from .models import User
@@ -75,9 +78,30 @@ class BaseRegisterForm(forms.ModelForm):
             arquivo.seek(0)
             imagem = Image.open(arquivo)
             imagem.verify()
-            arquivo.seek(0)
-            return arquivo
         except (UnidentifiedImageError, OSError, ValueError):
+            return None
+
+        try:
+            arquivo.seek(0)
+            imagem = Image.open(arquivo)
+            imagem = imagem.convert("RGB")
+            output = io.BytesIO()
+            imagem.save(output, format="JPEG", quality=85)
+            output.seek(0)
+
+            name_root, _ = os.path.splitext(arquivo.name or "profile")
+            new_name = f"{name_root}.jpg"
+
+            new_file = InMemoryUploadedFile(
+                output,
+                "profile_picture",
+                new_name,
+                "image/jpeg",
+                output.getbuffer().nbytes,
+                None,
+            )
+            return new_file
+        except Exception:
             return None
 
     def save_user(self, user_type):

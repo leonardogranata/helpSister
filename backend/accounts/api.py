@@ -27,7 +27,6 @@ def _normalize_register_payload(request):
     data = request.data.copy()
     files = request.FILES.copy()
 
-    # Frontend aliases
     if not data.get('confirm_password') and data.get('password_confirm'):
         data['confirm_password'] = data.get('password_confirm')
 
@@ -43,7 +42,6 @@ def _normalize_register_payload(request):
     if 'profile_picture' not in files and 'profile_photo' in request.FILES:
         files['profile_picture'] = request.FILES['profile_photo']
 
-    # Normalize ZIP format and try to enrich address from ViaCEP
     zip_code = data.get('zip_code') or ''
     zip_digits = re.sub(r"\D", "", zip_code)
     if len(zip_digits) == 8:
@@ -59,7 +57,6 @@ def _normalize_register_payload(request):
             if not data.get('state'):
                 data['state'] = (cep_data.get('estado') or 'NA').upper()[:2]
 
-    # Safe defaults so form validation can proceed with current frontend fields
     if not data.get('street'):
         data['street'] = 'Nao informado'
     if not data.get('neighborhood'):
