@@ -129,14 +129,14 @@ class BabysitterRegisterForm(BaseRegisterForm):
 
     def save(self):
         user = self.save_user("babysitter")
-        BabysitterProfile.objects.update_or_create(
+        # Save extra fields to User (they live on the User model now)
+        user.number = self.cleaned_data.get("number", "")
+        user.service_radius = self.cleaned_data.get("service_radius")
+        user.pix_key = self.cleaned_data.get("pix_key", "")
+        user.save(update_fields=["number", "service_radius", "pix_key"])
+        # Create empty profile — the babysitter fills it in later
+        BabysitterProfile.objects.get_or_create(
             user=user,
-            defaults={
-                "street": self.cleaned_data["street"],
-                "number": self.cleaned_data["number"],
-                "neighborhood": self.cleaned_data["neighborhood"],
-                "service_radius": self.cleaned_data["service_radius"],
-                "pix_key": self.cleaned_data["pix_key"],
-            },
+            defaults={"bio": "", "title": "Babá profissional", "linkedin": "", "housing_available": False},
         )
         return user

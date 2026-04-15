@@ -1,7 +1,9 @@
+import io
 import re
 from django.contrib.auth import authenticate
+from PIL import Image
 from rest_framework.decorators import api_view, permission_classes, parser_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
 from rest_framework import status
@@ -128,3 +130,60 @@ def register_api(request):
         'user_type': user.user_type,
     }
     return Response({'token': token.key, 'user': user_data}, status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET', 'PATCH'])
+@permission_classes([IsAuthenticated])
+@parser_classes([MultiPartParser, FormParser, JSONParser])
+def me_api(request):
+    """Return or partially update the authenticated user's own info."""
+    user = request.user
+
+    if request.method == 'GET':
+        return Response({
+            'id': user.id,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email': user.email,
+            'phone': user.phone,
+            'city': user.city,
+            'state': user.state,
+            'zip_code': user.zip_code,
+            'user_type': user.user_type,
+            'profile_picture_url': request.build_absolute_uri(user.profile_picture_url)
+            if user.profile_picture_url.startswith('/') else user.profile_picture_url,
+        })
+
+    # PATCH
+    allowed = ['first_name', 'last_name', 'phone', 'city', 'state', 'zip_code']
+    for field in allowed:
+        if field in request.data:
+            setattr(user, field, request.data[field])
+
+    if 'profile_picture' in request.FILES:
+        img_file = request.FILES['profile_picture']
+        img = Image.open(img_file).convert('RGB')
+        buf = io.BytesIO()
+        img.save(buf, format='JPEG', quality=85)
+        buf.seek(0)
+        from django.core.files.base import ContentFile
+        user.profile_picture.save(
+            f"profile_{user.id}.jpg",
+            ContentFile(buf.read()),
+            save=False,
+        )
+
+    user.save()
+    return Response({
+        'id': user.id,
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'email': user.email,
+        'phone': user.phone,
+        'city': user.city,
+        'state': user.state,
+        'zip_code': user.zip_code,
+        'user_type': user.user_type,
+        'profile_picture_url': request.build_absolute_uri(user.profile_picture_url)
+        if user.profile_picture_url.startswith('/') else user.profile_picture_url,
+    })

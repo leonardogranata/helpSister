@@ -1,27 +1,19 @@
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
-import { AnimatePresence } from 'framer-motion'
-import LandingPage    from './pages/LandingPage/LandingPage'
-import LoginPage      from './pages/LoginPage/LoginPage'
-import RegisterPage   from './pages/RegisterPage/RegisterPage'
-
-function AnimatedRoutes() {
-  const location = useLocation()
-
-  return (
-    <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
-        <Route path="/"         element={<LandingPage />} />
-        <Route path="/entrar"   element={<LoginPage />} />
-        <Route path="/cadastro" element={<RegisterPage />} />
-      </Routes>
-    </AnimatePresence>
-  )
-}
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import LandingPage from './pages/LandingPage/LandingPage'
+import LoginPage from './pages/LoginPage/LoginPage'
+import RegisterPage from './pages/RegisterPage/RegisterPage'
+import BabysitterProfilePage from './pages/BabysitterProfilePage/BabysitterProfilePage'
 
 function App() {
   return (
     <BrowserRouter>
-      <AnimatedRoutes />
+      <Routes>
+        <Route path="/"            element={<LandingPage />} />
+        <Route path="/entrar"      element={<LoginPage />} />
+        <Route path="/cadastro"    element={<RegisterPage />} />
+        <Route path="/baba/perfil" element={<BabysitterProfilePage />} />
+        <Route path="/baba/:id"    element={<BabysitterProfilePage />} />
+      </Routes>
     </BrowserRouter>
   )
 }
