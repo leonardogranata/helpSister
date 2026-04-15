@@ -1,7 +1,11 @@
 import React, { useRef, useState } from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faStar as faStarSolid, faCamera, faPenToSquare, faLocationDot } from '@fortawesome/free-solid-svg-icons'
+import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons'
 import type { BabysitterProfile } from '../../../services/profileService'
 import { updateMe, updateMyProfile } from '../../../services/profileService'
 import Modal from './Modal'
+import { TEXT_LIMITS, clampText } from '../constants/textLimits'
 
 interface Props {
   profile: BabysitterProfile
@@ -14,10 +18,11 @@ function StarRating({ value }: { value: number | null }) {
   return (
     <span className="flex items-center gap-1">
       {[1, 2, 3, 4, 5].map(i => (
-        <svg key={i} className={`w-4 h-4 ${i <= Math.round(value) ? 'text-yellow-400' : 'text-gray-200'}`}
-          fill="currentColor" viewBox="0 0 20 20">
-          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-        </svg>
+        <FontAwesomeIcon
+          key={i}
+          icon={i <= Math.round(value) ? faStarSolid : faStarRegular}
+          className={`w-4 h-4 ${i <= Math.round(value) ? 'text-yellow-400' : 'text-gray-300'}`}
+        />
       ))}
       <span className="text-sm text-hs-textbody ml-1">{value.toFixed(1)}</span>
     </span>
@@ -28,12 +33,12 @@ export default function ProfileHeader({ profile, isOwner, onUpdated }: Props) {
   const [showEdit, setShowEdit] = useState(false)
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState({
-    first_name: profile.name.split(' ')[0] || '',
-    last_name: profile.name.split(' ').slice(1).join(' ') || '',
-    phone: profile.phone || '',
-    bio: profile.bio || '',
-    title: profile.title || '',
-    linkedin: profile.linkedin || '',
+    first_name: clampText(profile.name.split(' ')[0], TEXT_LIMITS.profile.firstName),
+    last_name: clampText(profile.name.split(' ').slice(1).join(' '), TEXT_LIMITS.profile.lastName),
+    phone: clampText(profile.phone, TEXT_LIMITS.profile.phone),
+    bio: clampText(profile.bio, TEXT_LIMITS.profile.bio),
+    title: clampText(profile.title, TEXT_LIMITS.profile.title),
+    linkedin: clampText(profile.linkedin, TEXT_LIMITS.profile.linkedin),
   })
   const fileRef = useRef<HTMLInputElement>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
@@ -47,18 +52,31 @@ export default function ProfileHeader({ profile, isOwner, onUpdated }: Props) {
   }
 
   const handleSave = async () => {
+    const sanitizedForm = {
+      first_name: clampText(form.first_name, TEXT_LIMITS.profile.firstName),
+      last_name: clampText(form.last_name, TEXT_LIMITS.profile.lastName),
+      phone: clampText(form.phone, TEXT_LIMITS.profile.phone),
+      bio: clampText(form.bio, TEXT_LIMITS.profile.bio),
+      title: clampText(form.title, TEXT_LIMITS.profile.title),
+      linkedin: clampText(form.linkedin, TEXT_LIMITS.profile.linkedin),
+    }
+
     setSaving(true)
     try {
       // Update user info (name, phone, photo)
       const fd = new FormData()
-      fd.append('first_name', form.first_name)
-      fd.append('last_name', form.last_name)
-      fd.append('phone', form.phone)
+      fd.append('first_name', sanitizedForm.first_name)
+      fd.append('last_name', sanitizedForm.last_name)
+      fd.append('phone', sanitizedForm.phone)
       if (selectedFile) fd.append('profile_picture', selectedFile)
       await updateMe(fd)
 
       // Update profile (bio, title)
-      const updated = await updateMyProfile({ bio: form.bio, title: form.title, linkedin: form.linkedin })
+      const updated = await updateMyProfile({
+        bio: sanitizedForm.bio,
+        title: sanitizedForm.title,
+        linkedin: sanitizedForm.linkedin,
+      })
       onUpdated(updated)
       setShowEdit(false)
       setPreviewUrl(null)
@@ -71,7 +89,7 @@ export default function ProfileHeader({ profile, isOwner, onUpdated }: Props) {
   }
 
   const photoSrc = previewUrl || profile.profile_picture_url
-  const linkedinValue = profile.linkedin || ''
+  const linkedinValue = clampText(profile.linkedin, TEXT_LIMITS.profile.linkedin)
   const linkedinHref = linkedinValue.startsWith('http') ? linkedinValue : `https://${linkedinValue}`
 
   return (
@@ -96,11 +114,7 @@ export default function ProfileHeader({ profile, isOwner, onUpdated }: Props) {
                   className="absolute bottom-0 right-0 bg-hs-purple text-white w-7 h-7 rounded-full flex items-center justify-center shadow hover:bg-hs-purple-dark transition-colors"
                   title="Alterar foto"
                 >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                      d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
+                  <FontAwesomeIcon icon={faCamera} className="w-3.5 h-3.5" />
                 </button>
               )}
               <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
@@ -113,10 +127,7 @@ export default function ProfileHeader({ profile, isOwner, onUpdated }: Props) {
                   onClick={() => setShowEdit(true)}
                   className="border border-hs-purple text-hs-purple text-sm px-4 py-2 rounded-full hover:bg-purple-50 transition-colors flex items-center gap-2"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
+                  <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
                   Editar perfil
                 </button>
               ) : (
@@ -133,18 +144,20 @@ export default function ProfileHeader({ profile, isOwner, onUpdated }: Props) {
           </div>
 
           {/* Name & title */}
-          <h1 className="text-2xl font-bold text-hs-purple-dark">{profile.name || 'Sem nome'}</h1>
-          <p className="text-hs-textbody text-sm mb-1">{profile.title}</p>
+          <h1 className="text-2xl font-bold text-hs-purple-dark hs-wrap-text break-words">
+            {clampText(profile.name, TEXT_LIMITS.profile.firstName + TEXT_LIMITS.profile.lastName)}
+          </h1>
+          <p className="text-hs-textbody text-sm mb-1 hs-wrap-text break-words">
+            {clampText(profile.title, TEXT_LIMITS.profile.title)}
+          </p>
 
           {/* Location */}
           {(profile.city || profile.state) && (
-            <p className="text-sm text-gray-500 flex items-center gap-1 mb-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              {[profile.city, profile.state].filter(Boolean).join(', ')}
+            <p className="text-sm text-gray-500 flex items-center gap-1 mb-2 min-w-0">
+              <FontAwesomeIcon icon={faLocationDot} className="w-4 h-4 flex-shrink-0" />
+              <span className="hs-wrap-text break-words">
+                {[profile.city, profile.state].filter(Boolean).join(', ')}
+              </span>
             </p>
           )}
 
@@ -158,14 +171,16 @@ export default function ProfileHeader({ profile, isOwner, onUpdated }: Props) {
 
           {/* Bio */}
           {profile.bio && (
-            <p className="text-hs-textbody text-sm leading-relaxed">{profile.bio}</p>
+            <p className="text-hs-textbody text-sm leading-relaxed hs-wrap-text break-words">
+              {clampText(profile.bio, TEXT_LIMITS.profile.bio)}
+            </p>
           )}
           {linkedinValue && (
             <a
               href={linkedinHref}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center mt-3 text-sm text-hs-purple hover:text-hs-purple-dark underline"
+              className="inline-flex items-center mt-3 text-sm text-hs-purple hover:text-hs-purple-dark underline hs-wrap-text break-all"
             >
               LinkedIn
             </a>
@@ -183,6 +198,7 @@ export default function ProfileHeader({ profile, isOwner, onUpdated }: Props) {
                 <input
                   className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-hs-purple"
                   value={form.first_name}
+                  maxLength={TEXT_LIMITS.profile.firstName}
                   onChange={e => setForm(f => ({ ...f, first_name: e.target.value }))}
                 />
               </div>
@@ -191,6 +207,7 @@ export default function ProfileHeader({ profile, isOwner, onUpdated }: Props) {
                 <input
                   className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-hs-purple"
                   value={form.last_name}
+                  maxLength={TEXT_LIMITS.profile.lastName}
                   onChange={e => setForm(f => ({ ...f, last_name: e.target.value }))}
                 />
               </div>
@@ -201,6 +218,7 @@ export default function ProfileHeader({ profile, isOwner, onUpdated }: Props) {
                 placeholder="Ex: Babá profissional com 5 anos de experiência"
                 className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-hs-purple"
                 value={form.title}
+                maxLength={TEXT_LIMITS.profile.title}
                 onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
               />
             </div>
@@ -209,6 +227,7 @@ export default function ProfileHeader({ profile, isOwner, onUpdated }: Props) {
               <input
                 className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-hs-purple"
                 value={form.phone}
+                maxLength={TEXT_LIMITS.profile.phone}
                 onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
               />
             </div>
@@ -217,8 +236,9 @@ export default function ProfileHeader({ profile, isOwner, onUpdated }: Props) {
               <textarea
                 rows={4}
                 placeholder="Conte um pouco sobre você, sua experiência e o que você ama fazer com as crianças..."
-                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-hs-purple resize-none"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-hs-purple resize-none hs-wrap-text"
                 value={form.bio}
+                maxLength={TEXT_LIMITS.profile.bio}
                 onChange={e => setForm(f => ({ ...f, bio: e.target.value }))}
               />
             </div>
@@ -229,6 +249,7 @@ export default function ProfileHeader({ profile, isOwner, onUpdated }: Props) {
                 placeholder="https://www.linkedin.com/in/seu-perfil"
                 className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-hs-purple"
                 value={form.linkedin}
+                maxLength={TEXT_LIMITS.profile.linkedin}
                 onChange={e => setForm(f => ({ ...f, linkedin: e.target.value }))}
               />
             </div>

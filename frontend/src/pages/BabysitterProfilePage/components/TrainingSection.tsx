@@ -1,8 +1,12 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faGraduationCap, faCircleCheck, faXmark, faPlus } from '@fortawesome/free-solid-svg-icons'
 import type { Training } from '../../../services/profileService'
 import { createTraining, deleteTraining } from '../../../services/profileService'
 import SectionCard from './SectionCard'
 import Modal from './Modal'
+import ConfirmDialog from './ConfirmDialog'
+import { TEXT_LIMITS, clampText } from '../constants/textLimits'
 
 interface Props {
   trainings: Training[]
@@ -14,12 +18,23 @@ export default function TrainingSection({ trainings, isOwner, onChange }: Props)
   const [showModal, setShowModal] = useState(false)
   const [form, setForm] = useState({ title: '', description: '', completed: true })
   const [saving, setSaving] = useState(false)
+  const [confirmId, setConfirmId] = useState<number | null>(null)
 
   const handleAdd = async () => {
-    if (!form.title) { alert('Informe o título do curso/certificação.'); return }
+    const sanitizedForm = {
+      ...form,
+      title: clampText(form.title, TEXT_LIMITS.training.title),
+      description: clampText(form.description, TEXT_LIMITS.training.description),
+    }
+
+    if (!sanitizedForm.title.trim()) {
+      alert('Informe o título do curso/certificação.')
+      return
+    }
+
     setSaving(true)
     try {
-      const created = await createTraining(form)
+      const created = await createTraining(sanitizedForm)
       onChange([...trainings, created])
       setShowModal(false)
       setForm({ title: '', description: '', completed: true })
@@ -31,16 +46,16 @@ export default function TrainingSection({ trainings, isOwner, onChange }: Props)
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Remover esta capacitação?')) return
     await deleteTraining(id)
     onChange(trainings.filter(t => t.id !== id))
+    setConfirmId(null)
   }
 
   return (
     <>
       <SectionCard
         id="section-training"
-        icon="🎓"
+        icon={<FontAwesomeIcon icon={faGraduationCap} />}
         title="Capacitação"
         editable={isOwner}
         isEmpty={trainings.length === 0}
@@ -49,27 +64,28 @@ export default function TrainingSection({ trainings, isOwner, onChange }: Props)
       >
         <div className="space-y-3">
           {trainings.map(t => (
-            <div key={t.id} className="flex items-start justify-between gap-2 p-3 bg-purple-50 rounded-xl">
-              <div className="flex items-start gap-3">
+            <div key={t.id} className="flex items-start justify-between gap-2 p-3 bg-purple-50 rounded-xl min-w-0">
+              <div className="flex items-start gap-3 min-w-0 flex-1">
                 <div className="w-8 h-8 rounded-full bg-hs-purple flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                      d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                  </svg>
+                  <FontAwesomeIcon icon={faCircleCheck} className="w-4 h-4 text-white" />
                 </div>
-                <div>
-                  <div className="text-sm font-medium text-hs-purple-dark">{t.title}</div>
-                  {t.description && <div className="text-xs text-hs-textbody mt-0.5">{t.description}</div>}
+                <div className="min-w-0">
+                  <div className="text-sm font-medium text-hs-purple-dark hs-wrap-text break-words">
+                    {clampText(t.title, TEXT_LIMITS.training.title)}
+                  </div>
+                  {t.description && (
+                    <div className="text-xs text-hs-textbody mt-0.5 hs-wrap-text break-words">
+                      {clampText(t.description, TEXT_LIMITS.training.description)}
+                    </div>
+                  )}
                 </div>
               </div>
               {isOwner && (
                 <button
-                  onClick={() => t.id && handleDelete(t.id)}
+                  onClick={() => t.id && setConfirmId(t.id)}
                   className="text-gray-400 hover:text-red-500 p-1 flex-shrink-0"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                  <FontAwesomeIcon icon={faXmark} className="w-4 h-4" />
                 </button>
               )}
             </div>
@@ -79,9 +95,7 @@ export default function TrainingSection({ trainings, isOwner, onChange }: Props)
               onClick={() => setShowModal(true)}
               className="text-sm text-hs-purple hover:text-hs-purple-dark flex items-center gap-1 transition-colors mt-2"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
+              <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
               Adicionar capacitação
             </button>
           )}
@@ -97,6 +111,7 @@ export default function TrainingSection({ trainings, isOwner, onChange }: Props)
                 className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-hs-purple"
                 placeholder="Ex: Primeiros socorros infantil"
                 value={form.title}
+                maxLength={TEXT_LIMITS.training.title}
                 onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
               />
             </div>
@@ -106,6 +121,7 @@ export default function TrainingSection({ trainings, isOwner, onChange }: Props)
                 className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-hs-purple"
                 placeholder="Ex: Cruz Vermelha Brasileira"
                 value={form.description}
+                maxLength={TEXT_LIMITS.training.description}
                 onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
               />
             </div>
@@ -123,6 +139,15 @@ export default function TrainingSection({ trainings, isOwner, onChange }: Props)
             </div>
           </div>
         </Modal>
+      )}
+
+      {confirmId !== null && (
+        <ConfirmDialog
+          title="Remover capacitação"
+          message="Tem certeza que deseja remover esta capacitação? Essa ação não pode ser desfeita."
+          onConfirm={() => handleDelete(confirmId)}
+          onCancel={() => setConfirmId(null)}
+        />
       )}
     </>
   )

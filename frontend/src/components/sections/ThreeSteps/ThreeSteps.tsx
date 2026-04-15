@@ -29,7 +29,7 @@ const steps: Step[] = [
 
 export default function ThreeSteps() {
   return (
-    <section className="w-full bg-hs-bg py-20 md:py-28">
+    <section id="como-funciona" className="w-full bg-hs-bg py-20 md:py-28">
       <div className="max-w-content mx-auto px-6">
 
         <motion.div

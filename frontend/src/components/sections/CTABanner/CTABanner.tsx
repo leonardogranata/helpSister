@@ -10,7 +10,7 @@ export default function CTABanner() {
           viewport={{ once: true, amount: 0.4 }}
           transition={{ duration: 0.55, ease: 'easeOut' }}
         >
-    <section className="w-full bg-hs-bg py-20 md:py-28">
+    <section id="contratar" className="w-full bg-hs-bg py-20 md:py-28">
       <div className="max-w-content mx-auto px-6">
         <div className={`${styles.section} rounded-3xl px-8 py-20 flex flex-col items-center text-center gap-5`}>
           <span className="font-alt text-xs font-semibold tracking-widest uppercase text-white/60">

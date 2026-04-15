@@ -1,8 +1,11 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faHandshake } from '@fortawesome/free-solid-svg-icons'
 import type { Behavior } from '../../../services/profileService'
 import { updateBehavior } from '../../../services/profileService'
 import SectionCard from './SectionCard'
 import Modal from './Modal'
+import { TEXT_LIMITS, clampText } from '../constants/textLimits'
 
 const FIELDS: { key: keyof Behavior; label: string; placeholder: string }[] = [
   {
@@ -50,7 +53,7 @@ export default function BehaviorSection({ behavior, isOwner, onChange }: Props) 
   )
   const [saving, setSaving] = useState(false)
 
-  const hasContent = behavior && FIELDS.some(f => behavior[f.key])
+  const hasContent = behavior && FIELDS.some(f => clampText(behavior[f.key], TEXT_LIMITS.behavior.answer).trim())
 
   const openModal = () => {
     setForm(behavior || { family_orientation: '', playtime: '', flexibility: '', parent_communication: '', daily_routine: '', situation_dilemma: '' })
@@ -58,9 +61,14 @@ export default function BehaviorSection({ behavior, isOwner, onChange }: Props) 
   }
 
   const handleSave = async () => {
+    const sanitizedForm = FIELDS.reduce((acc, field) => {
+      acc[field.key] = clampText(form[field.key], TEXT_LIMITS.behavior.answer)
+      return acc
+    }, {} as Behavior)
+
     setSaving(true)
     try {
-      const updated = await updateBehavior(form)
+      const updated = await updateBehavior(sanitizedForm)
       onChange(updated)
       setShowModal(false)
     } catch (err) {
@@ -74,7 +82,7 @@ export default function BehaviorSection({ behavior, isOwner, onChange }: Props) 
     <>
       <SectionCard
         id="section-behavior"
-        icon="🤝"
+        icon={<FontAwesomeIcon icon={faHandshake} />}
         title="Postura e comportamento"
         editable={isOwner}
         isEmpty={!hasContent}
@@ -84,11 +92,13 @@ export default function BehaviorSection({ behavior, isOwner, onChange }: Props) 
       >
         <div className="space-y-4">
           {FIELDS.filter(f => behavior?.[f.key]).map(field => (
-            <div key={field.key}>
-              <h4 className="text-xs font-semibold text-hs-purple uppercase tracking-wide mb-1">
+            <div key={field.key} className="min-w-0">
+              <h4 className="text-xs font-semibold text-hs-purple uppercase tracking-wide mb-1 hs-wrap-text break-words">
                 {field.label}
               </h4>
-              <p className="text-sm text-hs-textbody leading-relaxed">{behavior?.[field.key]}</p>
+              <p className="text-sm text-hs-textbody leading-relaxed hs-wrap-text break-words">
+                {clampText(behavior?.[field.key], TEXT_LIMITS.behavior.answer)}
+              </p>
             </div>
           ))}
         </div>
@@ -103,8 +113,9 @@ export default function BehaviorSection({ behavior, isOwner, onChange }: Props) 
                 <textarea
                   rows={3}
                   placeholder={field.placeholder}
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-hs-purple resize-none"
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-hs-purple resize-none hs-wrap-text"
                   value={form[field.key]}
+                  maxLength={TEXT_LIMITS.behavior.answer}
                   onChange={e => setForm(f => ({ ...f, [field.key]: e.target.value }))}
                 />
               </div>

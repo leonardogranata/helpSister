@@ -1,12 +1,14 @@
-import React from 'react'
+import type { ReactNode } from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPenToSquare } from '@fortawesome/free-solid-svg-icons'
 
 interface Props {
   id?: string
-  icon: string
+  icon: ReactNode
   title: string
   editable?: boolean
   onEdit?: () => void
-  children: React.ReactNode
+  children: ReactNode
   emptyLabel?: string
   isEmpty?: boolean
   onAdd?: () => void
@@ -25,8 +27,8 @@ export default function SectionCard({
 }: Props) {
   return (
     <div id={id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-4">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="font-semibold text-hs-purple-dark flex items-center gap-2 text-base">
+      <div className="flex items-center justify-between gap-2 mb-4 min-w-0">
+        <h2 className="font-semibold text-hs-purple-dark flex items-center gap-2 text-base min-w-0 hs-wrap-text break-words">
           <span>{icon}</span>
           {title}
         </h2>
@@ -35,19 +37,18 @@ export default function SectionCard({
             onClick={onEdit}
             className="text-hs-purple hover:text-hs-purple-dark text-sm flex items-center gap-1 transition-colors"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
+            <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
             Editar
           </button>
         )}
       </div>
 
       {isEmpty ? (
-        <div className="flex flex-col items-center justify-center py-8 text-center">
+        <div className="flex flex-col items-center justify-center py-8 text-center min-w-0">
           <div className="text-4xl mb-3 opacity-30">+</div>
-          <p className="text-hs-textbody text-sm mb-4">{emptyLabel || 'Nenhuma informação adicionada ainda.'}</p>
+          <p className="text-hs-textbody text-sm mb-4 hs-wrap-text break-words">
+            {emptyLabel || 'Nenhuma informação adicionada ainda.'}
+          </p>
           {editable && onAdd && (
             <button
               onClick={onAdd}

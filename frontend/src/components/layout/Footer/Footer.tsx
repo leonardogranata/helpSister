@@ -6,14 +6,14 @@ import logo from '../../../assets/logo.png'
 const plataforma = [
   { href: '#como-funciona', label: 'Como Funciona' },
   { href: '#familias',      label: 'Para famílias' },
-  { href: '#babas',         label: 'Para babás' },
-  { href: '#conduta',       label: 'Regras e Conduta' },
+  { href: '#solucao',       label: 'Para babás' },
+  { href: '#conversar',     label: 'Regras e Conduta' },
 ]
 
 const empresa = [
-  { href: '#sobre',   label: 'Sobre nós' },
-  { href: '#missao',  label: 'Nossa missão' },
-  { href: '#contato', label: 'Contato' },
+  { href: '#conversar', label: 'Sobre nós' },
+  { href: '#solucao',   label: 'Nossa missão' },
+  { href: '#contato',   label: 'Contato' },
 ]
 
 export default function Footer() {
@@ -91,7 +91,7 @@ export default function Footer() {
               ))}
             </ul>
           </div>
-          <div className="flex flex-col gap-4">
+          <div id="contato" className="flex flex-col gap-4">
             <span className="font-alt text-xs font-semibold tracking-widest uppercase text-white/40">
               Contato
             </span>

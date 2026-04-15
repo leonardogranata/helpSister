@@ -1,8 +1,11 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faUser } from '@fortawesome/free-solid-svg-icons'
 import type { PersonalTraits } from '../../../services/profileService'
 import { updatePersonalTraits } from '../../../services/profileService'
 import SectionCard from './SectionCard'
 import Modal from './Modal'
+import { TEXT_LIMITS, clampText } from '../constants/textLimits'
 
 const TRAITS: { key: keyof Omit<PersonalTraits, 'bio_quote'>; label: string }[] = [
   { key: 'organized', label: 'Organizada' },
@@ -25,9 +28,7 @@ export default function PersonalTraitsSection({ personalTraits, isOwner, onChang
   const safeTraits = personalTraits || fallbackTraits
 
   const [showModal, setShowModal] = useState(false)
-  const [form, setForm] = useState<PersonalTraits>(
-    personalTraits || fallbackTraits
-  )
+  const [form, setForm] = useState<PersonalTraits>(personalTraits || fallbackTraits)
   const [saving, setSaving] = useState(false)
 
   const openModal = () => {
@@ -36,9 +37,14 @@ export default function PersonalTraitsSection({ personalTraits, isOwner, onChang
   }
 
   const handleSave = async () => {
+    const sanitizedForm: PersonalTraits = {
+      ...form,
+      bio_quote: clampText(form.bio_quote, TEXT_LIMITS.personalTraits.bioQuote),
+    }
+
     setSaving(true)
     try {
-      const updated = await updatePersonalTraits(form)
+      const updated = await updatePersonalTraits(sanitizedForm)
       onChange(updated)
       setShowModal(false)
     } catch (err) {
@@ -52,7 +58,7 @@ export default function PersonalTraitsSection({ personalTraits, isOwner, onChang
     <>
       <SectionCard
         id="section-traits"
-        icon="👤"
+        icon={<FontAwesomeIcon icon={faUser} />}
         title="Perfil pessoal"
         editable={isOwner}
         isEmpty={!personalTraits}
@@ -60,14 +66,14 @@ export default function PersonalTraitsSection({ personalTraits, isOwner, onChang
         onAdd={openModal}
         onEdit={openModal}
       >
-        <div className="space-y-3">
+        <div className="space-y-3 min-w-0">
           {TRAITS.map(t => {
             const val = safeTraits[t.key] as number
             return (
               <div key={t.key}>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm text-hs-textbody">{t.label}</span>
-                  <span className="text-xs text-hs-purple font-medium">{LABELS[val]}</span>
+                <div className="flex items-center justify-between mb-1 gap-2">
+                  <span className="text-sm text-hs-textbody hs-wrap-text break-words">{t.label}</span>
+                  <span className="text-xs text-hs-purple font-medium flex-shrink-0">{LABELS[val]}</span>
                 </div>
                 <div className="w-full bg-purple-100 rounded-full h-2">
                   <div
@@ -79,8 +85,8 @@ export default function PersonalTraitsSection({ personalTraits, isOwner, onChang
             )
           })}
           {safeTraits.bio_quote && (
-            <blockquote className="mt-4 border-l-4 border-hs-purple pl-4 text-sm text-hs-textbody italic">
-              "{safeTraits.bio_quote}"
+            <blockquote className="mt-4 border-l-4 border-hs-purple pl-4 text-sm text-hs-textbody italic hs-wrap-text break-words">
+              "{clampText(safeTraits.bio_quote, TEXT_LIMITS.personalTraits.bioQuote)}"
             </blockquote>
           )}
         </div>
@@ -115,8 +121,9 @@ export default function PersonalTraitsSection({ personalTraits, isOwner, onChang
               <textarea
                 rows={2}
                 placeholder="Ex: 'Eu amo cuidar das crianças e acompanhar seu crescimento...'"
-                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-hs-purple resize-none"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-hs-purple resize-none hs-wrap-text"
                 value={form.bio_quote}
+                maxLength={TEXT_LIMITS.personalTraits.bioQuote}
                 onChange={e => setForm(f => ({ ...f, bio_quote: e.target.value }))}
               />
             </div>

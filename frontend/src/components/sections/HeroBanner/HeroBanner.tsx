@@ -36,7 +36,7 @@ export default function HeroBanner() {
 
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mt-1">
             <a
-              href="/"
+              href="/cadastro"
               className="font-alt text-[0.95rem] font-semibold text-hs-white bg-hs-purple px-7 py-3 rounded-full shadow-[0_4px_16px_rgba(97,5,166,0.3)] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(97,5,166,0.4)] transition-all duration-200"
             >
               Começar Agora

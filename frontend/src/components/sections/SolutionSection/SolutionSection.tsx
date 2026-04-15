@@ -34,7 +34,7 @@ const cards: Card[] = [
 
 export default function SolutionSection() {
   return (
-    <section className="w-full bg-hs-bg py-20 md:py-28">
+    <section id="solucao" className="w-full bg-hs-bg py-20 md:py-28">
       <div className="max-w-content mx-auto px-6">
         <div className="bg-hs-lavender/60 rounded-3xl px-8 py-14 md:px-16 md:py-16">
 

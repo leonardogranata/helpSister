@@ -1,18 +1,31 @@
 import React, { useState } from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import type { IconDefinition } from '@fortawesome/fontawesome-svg-core'
+import {
+  faBookOpen,
+  faPuzzlePiece,
+  faTree,
+  faHandshake,
+  faPalette,
+  faUtensils,
+  faMusic,
+  faScissors,
+  faStar,
+} from '@fortawesome/free-solid-svg-icons'
 import type { Activities } from '../../../services/profileService'
 import { updateActivities } from '../../../services/profileService'
 import SectionCard from './SectionCard'
 import Modal from './Modal'
 
-const ACTIVITY_LIST: { key: keyof Activities; label: string; icon: string }[] = [
-  { key: 'reading', label: 'Leitura e histórias', icon: '📚' },
-  { key: 'educational_toys', label: 'Brincadeiras educativas', icon: '🧩' },
-  { key: 'outdoor', label: 'Atividades ao livre', icon: '🌳' },
-  { key: 'social_skills', label: 'Habilidades sociais', icon: '🤝' },
-  { key: 'arts', label: 'Desenhos e pintura', icon: '🎨' },
-  { key: 'cooking', label: 'Culinária e receitas', icon: '👩‍🍳' },
-  { key: 'music', label: 'Música e artigos', icon: '🎵' },
-  { key: 'crafts', label: 'Trabalhos artesanais', icon: '✂️' },
+const ACTIVITY_LIST: { key: keyof Activities; label: string; icon: IconDefinition }[] = [
+  { key: 'reading', label: 'Leitura e histórias', icon: faBookOpen },
+  { key: 'educational_toys', label: 'Brincadeiras educativas', icon: faPuzzlePiece },
+  { key: 'outdoor', label: 'Atividades ao livre', icon: faTree },
+  { key: 'social_skills', label: 'Habilidades sociais', icon: faHandshake },
+  { key: 'arts', label: 'Desenhos e pintura', icon: faPalette },
+  { key: 'cooking', label: 'Culinária e receitas', icon: faUtensils },
+  { key: 'music', label: 'Música e artigos', icon: faMusic },
+  { key: 'crafts', label: 'Trabalhos artesanais', icon: faScissors },
 ]
 
 const emptyActivities = (): Activities => ({
@@ -55,7 +68,7 @@ export default function ActivitiesSection({ activities, isOwner, onChange }: Pro
     <>
       <SectionCard
         id="section-activities"
-        icon="⭐"
+        icon={<FontAwesomeIcon icon={faStar} />}
         title="Atividades com as crianças"
         editable={isOwner}
         isEmpty={!activities}
@@ -69,7 +82,7 @@ export default function ActivitiesSection({ activities, isOwner, onChange }: Pro
               key={a.key}
               className="flex items-center gap-1.5 bg-purple-50 text-hs-purple border border-purple-100 rounded-full text-sm px-3 py-1.5"
             >
-              <span>{a.icon}</span>
+              <FontAwesomeIcon icon={a.icon} className="w-3.5 h-3.5" />
               {a.label}
             </span>
           ))}
@@ -94,7 +107,7 @@ export default function ActivitiesSection({ activities, isOwner, onChange }: Pro
                     : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
                 }`}
               >
-                <span className="text-lg">{a.icon}</span>
+                <FontAwesomeIcon icon={a.icon} className="w-4 h-4 flex-shrink-0" />
                 {a.label}
               </button>
             ))}

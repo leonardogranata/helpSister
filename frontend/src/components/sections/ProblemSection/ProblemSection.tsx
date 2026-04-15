@@ -24,7 +24,7 @@ const problems = [
 
 export default function ProblemSection() {
   return (
-    <section className='w-full bg-hs-bg py-20 md:py-28'>
+    <section id="familias" className='w-full bg-hs-bg py-20 md:py-28'>
       <div className='max-w-content mx-auto px-6 flex flex-col md:flex-row items-start gap-14 md:gap-20'>
 
         <motion.div

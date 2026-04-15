@@ -41,7 +41,7 @@ export default function TrustSection() {
           viewport={{ once: true, amount: 0.4 }}
           transition={{ duration: 0.55, ease: 'easeOut' }}
         >
-    <section className="w-full bg-hs-bg py-20 md:py-28">
+    <section id="conversar" className="w-full bg-hs-bg py-20 md:py-28">
       <div className="max-w-content mx-auto px-6">
         <div className="flex flex-col md:flex-row gap-12 md:gap-16 items-start">
 

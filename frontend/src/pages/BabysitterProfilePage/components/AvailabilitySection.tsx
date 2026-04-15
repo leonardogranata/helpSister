@@ -1,4 +1,6 @@
 import React, { useState } from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCalendarDays, faCheck } from '@fortawesome/free-solid-svg-icons'
 import type { Schedule } from '../../../services/profileService'
 import { updateSchedule } from '../../../services/profileService'
 import SectionCard from './SectionCard'
@@ -85,7 +87,7 @@ export default function AvailabilitySection({ schedules, isOwner, onChange }: Pr
     <>
       <SectionCard
         id="section-schedule"
-        icon="📅"
+        icon={<FontAwesomeIcon icon={faCalendarDays} />}
         title="Disponibilidade"
         editable={isOwner}
         isEmpty={isEmpty}
@@ -118,7 +120,7 @@ export default function AvailabilitySection({ schedules, isOwner, onChange }: Pr
                         <span className={`inline-block w-5 h-5 rounded-full text-xs leading-5 ${
                           available ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
                         }`}>
-                          {available ? '✓' : '–'}
+                          {available ? <FontAwesomeIcon icon={faCheck} className="text-xs" /> : '–'}
                         </span>
                       </td>
                     )
@@ -152,10 +154,10 @@ export default function AvailabilitySection({ schedules, isOwner, onChange }: Pr
                       <td key={d.value} className="text-center px-2 py-2">
                         <button
                           onClick={() => toggle(d.value, p.key)}
-                          className={`w-8 h-8 rounded-full text-xs font-medium border-2 transition-all ${
+                          className={`w-8 h-8 rounded-full text-xs font-medium border-2 transition-all cursor-pointer ${
                             grid[d.value][p.key]
                               ? 'bg-hs-purple border-hs-purple text-white'
-                              : 'bg-white border-gray-200 text-gray-400 hover:border-hs-purple'
+                              : 'bg-gray-300 border-gray-300 text-gray-400 hover:bg-hs-purple/40 hover:border-hs-purple'
                           }`}
                         >
                           {grid[d.value][p.key] ? '✓' : ''}

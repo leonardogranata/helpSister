@@ -1,8 +1,12 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faBriefcase, faPenToSquare, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons'
 import type { Experience } from '../../../services/profileService'
 import { createExperience, updateExperience, deleteExperience } from '../../../services/profileService'
 import SectionCard from './SectionCard'
 import Modal from './Modal'
+import ConfirmDialog from './ConfirmDialog'
+import { TEXT_LIMITS, clampText } from '../constants/textLimits'
 
 const AGE_RANGES = [
   { value: '0-2', label: '0 a 2 anos' },
@@ -39,9 +43,16 @@ export default function ExperienceSection({ experiences, isOwner, onChange }: Pr
   const [modal, setModal] = useState<{ open: boolean; editing: Experience | null }>({ open: false, editing: null })
   const [form, setForm] = useState<Experience>(emptyForm())
   const [saving, setSaving] = useState(false)
+  const [confirmId, setConfirmId] = useState<number | null>(null)
 
-  const openAdd = () => { setForm(emptyForm()); setModal({ open: true, editing: null }) }
-  const openEdit = (exp: Experience) => { setForm({ ...exp }); setModal({ open: true, editing: exp }) }
+  const openAdd = () => {
+    setForm(emptyForm())
+    setModal({ open: true, editing: null })
+  }
+  const openEdit = (exp: Experience) => {
+    setForm({ ...exp })
+    setModal({ open: true, editing: exp })
+  }
   const closeModal = () => setModal({ open: false, editing: null })
 
   const toggleAgeRange = (val: string) => {
@@ -54,17 +65,25 @@ export default function ExperienceSection({ experiences, isOwner, onChange }: Pr
   }
 
   const handleSave = async () => {
-    if (!form.title || !form.employer || !form.start_date) {
+    const sanitizedForm: Experience = {
+      ...form,
+      title: clampText(form.title, TEXT_LIMITS.experience.title),
+      employer: clampText(form.employer, TEXT_LIMITS.experience.employer),
+      description: clampText(form.description, TEXT_LIMITS.experience.description),
+    }
+
+    if (!sanitizedForm.title.trim() || !sanitizedForm.employer.trim() || !sanitizedForm.start_date) {
       alert('Preencha os campos obrigatórios.')
       return
     }
+
     setSaving(true)
     try {
       if (modal.editing?.id) {
-        const updated = await updateExperience(modal.editing.id, form)
+        const updated = await updateExperience(modal.editing.id, sanitizedForm)
         onChange(experiences.map(e => (e.id === updated.id ? updated : e)))
       } else {
-        const created = await createExperience(form)
+        const created = await createExperience(sanitizedForm)
         onChange([...experiences, created])
       }
       closeModal()
@@ -76,16 +95,16 @@ export default function ExperienceSection({ experiences, isOwner, onChange }: Pr
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Remover esta experiência?')) return
     await deleteExperience(id)
     onChange(experiences.filter(e => e.id !== id))
+    setConfirmId(null)
   }
 
   return (
     <>
       <SectionCard
         id="section-experiences"
-        icon="💼"
+        icon={<FontAwesomeIcon icon={faBriefcase} />}
         title="Experiências"
         editable={isOwner}
         isEmpty={experiences.length === 0}
@@ -95,39 +114,40 @@ export default function ExperienceSection({ experiences, isOwner, onChange }: Pr
         <div className="space-y-5">
           {experiences.map(exp => (
             <div key={exp.id} className="border-b border-gray-50 pb-5 last:border-0 last:pb-0">
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex-1">
-                  <div className="font-medium text-hs-purple-dark">{exp.title}</div>
-                  <div className="text-sm text-hs-textbody">{exp.employer}</div>
-                  <div className="text-xs text-gray-400 mt-0.5">
-                    {formatDate(exp.start_date)} – {exp.is_current ? 'Atual' : formatDate(exp.end_date || '')}
+              <div className="min-w-0">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="font-medium text-hs-purple-dark hs-wrap-text break-words flex-1 min-w-0">
+                    {clampText(exp.title, TEXT_LIMITS.experience.title)}
                   </div>
-                  {exp.description && (
-                    <p className="text-sm text-hs-textbody mt-2 leading-relaxed">{exp.description}</p>
-                  )}
-                  {exp.age_ranges.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mt-2">
-                      {exp.age_ranges.map(r => (
-                        <span key={r} className="text-xs bg-purple-50 text-hs-purple border border-purple-100 rounded-full px-2.5 py-0.5">
-                          {AGE_RANGES.find(a => a.value === r)?.label || r}
-                        </span>
-                      ))}
+                  {isOwner && (
+                    <div className="flex gap-1 flex-shrink-0">
+                      <button onClick={() => openEdit(exp)} className="text-gray-400 hover:text-hs-purple p-1">
+                        <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => exp.id && setConfirmId(exp.id)} className="text-gray-400 hover:text-red-500 p-1">
+                        <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+                      </button>
                     </div>
                   )}
                 </div>
-                {isOwner && (
-                  <div className="flex gap-1 flex-shrink-0">
-                    <button onClick={() => openEdit(exp)} className="text-gray-400 hover:text-hs-purple p-1">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                    </button>
-                    <button onClick={() => exp.id && handleDelete(exp.id)} className="text-gray-400 hover:text-red-500 p-1">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
+                <div className="text-sm text-hs-textbody hs-wrap-text break-words">
+                  {clampText(exp.employer, TEXT_LIMITS.experience.employer)}
+                </div>
+                <div className="text-xs text-gray-400 mt-0.5 hs-wrap-text break-words">
+                  {formatDate(exp.start_date)} – {exp.is_current ? 'Atual' : formatDate(exp.end_date || '')}
+                </div>
+                {exp.description && (
+                  <p className="text-sm text-hs-textbody mt-2 leading-relaxed hs-wrap-text break-words">
+                    {clampText(exp.description, TEXT_LIMITS.experience.description)}
+                  </p>
+                )}
+                {exp.age_ranges.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {exp.age_ranges.map(r => (
+                      <span key={r} className="text-xs bg-purple-50 text-hs-purple border border-purple-100 rounded-full px-2.5 py-0.5">
+                        {AGE_RANGES.find(a => a.value === r)?.label || r}
+                      </span>
+                    ))}
                   </div>
                 )}
               </div>
@@ -138,9 +158,7 @@ export default function ExperienceSection({ experiences, isOwner, onChange }: Pr
               onClick={openAdd}
               className="text-sm text-hs-purple hover:text-hs-purple-dark flex items-center gap-1 transition-colors"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
+              <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
               Adicionar experiência
             </button>
           )}
@@ -148,11 +166,7 @@ export default function ExperienceSection({ experiences, isOwner, onChange }: Pr
       </SectionCard>
 
       {modal.open && (
-        <Modal
-          title={modal.editing ? 'Editar experiência' : 'Adicionar experiência'}
-          onClose={closeModal}
-          size="lg"
-        >
+        <Modal title={modal.editing ? 'Editar experiência' : 'Adicionar experiência'} onClose={closeModal} size="lg">
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -161,6 +175,7 @@ export default function ExperienceSection({ experiences, isOwner, onChange }: Pr
                   className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-hs-purple"
                   placeholder="Ex: Babá particular"
                   value={form.title}
+                  maxLength={TEXT_LIMITS.experience.title}
                   onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
                 />
               </div>
@@ -170,6 +185,7 @@ export default function ExperienceSection({ experiences, isOwner, onChange }: Pr
                   className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-hs-purple"
                   placeholder="Ex: Família Rodrigues"
                   value={form.employer}
+                  maxLength={TEXT_LIMITS.experience.employer}
                   onChange={e => setForm(f => ({ ...f, employer: e.target.value }))}
                 />
               </div>
@@ -211,8 +227,9 @@ export default function ExperienceSection({ experiences, isOwner, onChange }: Pr
               <textarea
                 rows={3}
                 placeholder="Descreva suas responsabilidades e conquistas nesta experiência..."
-                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-hs-purple resize-none"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-hs-purple resize-none hs-wrap-text"
                 value={form.description}
+                maxLength={TEXT_LIMITS.experience.description}
                 onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
               />
             </div>
@@ -251,6 +268,15 @@ export default function ExperienceSection({ experiences, isOwner, onChange }: Pr
             </div>
           </div>
         </Modal>
+      )}
+
+      {confirmId !== null && (
+        <ConfirmDialog
+          title="Remover experiência"
+          message="Tem certeza que deseja remover esta experiência? Essa ação não pode ser desfeita."
+          onConfirm={() => handleDelete(confirmId)}
+          onCancel={() => setConfirmId(null)}
+        />
       )}
     </>
   )
