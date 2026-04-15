@@ -2,7 +2,6 @@ import re
 
 import requests
 from requests.exceptions import RequestException
-from validate_docbr import CPF
 
 
 def limpar_cep(cep):
@@ -37,8 +36,3 @@ def buscar_dados_cep(cep):
 def limpar_cpf(cpf):
     return re.sub(r"\D", "", cpf or "")
 
-
-def validar_cpf(cpf):
-    cpf_limpo = limpar_cpf(cpf)
-    validador = CPF()
-    return validador.validate(cpf_limpo)

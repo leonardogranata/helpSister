@@ -4,10 +4,11 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 import io
 import os
 from PIL import Image, UnidentifiedImageError
+import re
 
 from .models import User
 from profiles.models import BabysitterProfile, ContractorProfile
-from cep import validar_cpf
+from .cpf import validar_cpf, limpar_cpf
 
 
 class BaseRegisterForm(forms.ModelForm):
@@ -53,12 +54,21 @@ class BaseRegisterForm(forms.ModelForm):
         return email
 
     def clean_cpf(self):
-        cpf = self.cleaned_data.get("cpf")
-        if cpf and User.objects.filter(cpf=cpf).exists():
-            raise ValidationError("Esse CPF ja esta cadastrado.")
-        if cpf:
-            if not validar_cpf(cpf):
-                raise ValidationError("CPF não é verdadeiro.")
+        cpf_raw = self.cleaned_data.get("cpf")
+        cpf = limpar_cpf(cpf_raw)
+        if not cpf or len(cpf) != 11:
+            raise ValidationError("CPF inválido.")
+        
+        if User.objects.filter(cpf=cpf).exists():
+            raise ValidationError("CPF já cadastrado.")
+        
+        existing = User.objects.exclude(cpf__isnull=True).exclude(cpf__exact="")
+        for u in existing:
+            if re.sub(r"\D", "", u.cpf or "") == cpf:
+                raise ValidationError("CPF já cadastrado.")
+        
+        if not validar_cpf(cpf):
+            raise ValidationError("CPF inválido.")
         return cpf
 
     def clean(self):
@@ -136,12 +146,12 @@ class BabysitterRegisterForm(BaseRegisterForm):
 
     def save(self):
         user = self.save_user("babysitter")
-        # Save extra fields to User (they live on the User model now)
+        
         user.number = self.cleaned_data.get("number", "")
         user.service_radius = self.cleaned_data.get("service_radius")
         user.pix_key = self.cleaned_data.get("pix_key", "")
         user.save(update_fields=["number", "service_radius", "pix_key"])
-        # Create empty profile — the babysitter fills it in later
+        
         BabysitterProfile.objects.get_or_create(
             user=user,
             defaults={"bio": "", "title": "Babá profissional", "linkedin": "", "housing_available": False},

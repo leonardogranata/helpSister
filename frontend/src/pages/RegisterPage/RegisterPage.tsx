@@ -311,13 +311,36 @@ export default function RegisterPage() {
 
   // ── Navegar entre passos ────────────────────────────────────────────────
 
-  function handleNext() {
+  async function handleNext() {
     let validationError: string | null = null
     if (step === 1) validationError = validateStep1()
     if (step === 2) validationError = validateStep2()
     if (step === 3) validationError = validateStep3()
 
     if (validationError) { setError(validationError); return }
+
+    if (step === 1) {
+      setIsLoading(true)
+      setError(null)
+      try {
+        const res = await fetch('/api/auth/validate-cpf/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cpf: step1.cpf }),
+        })
+        const data = await res.json().catch(() => ({}))
+        if (!res.ok) {
+          setError(data.detail || 'CPF inválido.')
+          return
+        }
+      } catch (e) {
+        setError('Erro ao validar CPF. Tente novamente.')
+        return
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
     setStep(s => (s < 4 ? (s + 1) as Step : s))
   }
 
@@ -902,6 +925,7 @@ export default function RegisterPage() {
               <button
                 type="button"
                 onClick={handleNext}
+                disabled={isLoading}
                 className="flex-1 font-alt text-sm font-semibold text-hs-white py-3 rounded-xl bg-gradient-to-r from-hs-purple-light to-hs-purple hover:opacity-90 hover:-translate-y-0.5 transition-all duration-200 shadow-md"
               >
                 Próximo →

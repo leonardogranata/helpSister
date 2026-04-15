@@ -10,6 +10,8 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 
 from cep import buscar_dados_cep
+from .cpf import validar_cpf, limpar_cpf
+from .models import User
 
 from .forms import BabysitterRegisterForm, ContractorRegisterForm
 
@@ -132,6 +134,37 @@ def register_api(request):
     return Response({'token': token.key, 'user': user_data}, status=status.HTTP_201_CREATED)
 
 
+@api_view(['POST'])
+@permission_classes([AllowAny])
+@parser_classes([JSONParser])
+def validate_cpf_api(request):
+    """Validate CPF early in the multi-step registration flow.
+
+    Expects JSON: {"cpf": "..."}
+    Returns 200 with message when CPF is valid and not registered.
+    Returns 400 with 'CPF inválido.' or 'CPF já cadastrado.' otherwise.
+    """
+    cpf_raw = request.data.get('cpf')
+    cpf = limpar_cpf(cpf_raw)
+    if not cpf or len(cpf) != 11:
+        return Response({'detail': 'CPF inválido.'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    if cpf == cpf[0] * 11:
+        return Response({'detail': 'CPF inválido.'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    if User.objects.filter(cpf=cpf).exists():
+        return Response({'detail': 'CPF já cadastrado.'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    existing = User.objects.exclude(cpf__isnull=True).exclude(cpf__exact="")
+    for u in existing:
+        if re.sub(r"\D", "", u.cpf or "") == cpf:
+            return Response({'detail': 'CPF já cadastrado.'}, status=status.HTTP_400_BAD_REQUEST)
+   
+    if not validar_cpf(cpf):
+        return Response({'detail': 'CPF inválido.'}, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'detail': 'CPF válido.'}, status=status.HTTP_200_OK)
+
+
 @api_view(['GET', 'PATCH'])
 @permission_classes([IsAuthenticated])
 @parser_classes([MultiPartParser, FormParser, JSONParser])
@@ -140,7 +173,7 @@ def me_api(request):
     user = request.user
 
     if request.method == 'GET':
-        return Response({
+        resp = {
             'id': user.id,
             'first_name': user.first_name,
             'last_name': user.last_name,
@@ -152,9 +185,12 @@ def me_api(request):
             'user_type': user.user_type,
             'profile_picture_url': request.build_absolute_uri(user.profile_picture_url)
             if user.profile_picture_url.startswith('/') else user.profile_picture_url,
-        })
+        }
+        if getattr(user, "cpf_validated", False):
+            resp['cpf_validado'] = "CPF validado."
+        return Response(resp)
 
-    # PATCH
+    
     allowed = ['first_name', 'last_name', 'phone', 'city', 'state', 'zip_code']
     for field in allowed:
         if field in request.data:
