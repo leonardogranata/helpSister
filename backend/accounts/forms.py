@@ -7,6 +7,7 @@ from PIL import Image, UnidentifiedImageError
 
 from .models import User
 from profiles.models import BabysitterProfile, ContractorProfile
+from cep import validar_cpf
 
 
 class BaseRegisterForm(forms.ModelForm):
@@ -55,6 +56,9 @@ class BaseRegisterForm(forms.ModelForm):
         cpf = self.cleaned_data.get("cpf")
         if cpf and User.objects.filter(cpf=cpf).exists():
             raise ValidationError("Esse CPF ja esta cadastrado.")
+        if cpf:
+            if not validar_cpf(cpf):
+                raise ValidationError("CPF não é verdadeiro.")
         return cpf
 
     def clean(self):
@@ -109,6 +113,9 @@ class BaseRegisterForm(forms.ModelForm):
         user.username = user.email
         user.user_type = user_type
         user.set_password(self.cleaned_data["password"])
+        cpf = self.cleaned_data.get("cpf")
+        if cpf and validar_cpf(cpf):
+            user.cpf_validated = True
         user.save()
         return user
 

@@ -13,6 +13,7 @@ class User(AbstractUser):
 
     email = models.EmailField("email address", unique=True)
     cpf = models.CharField(max_length=14, unique=True, null=True, blank=True)
+    cpf_validated = models.BooleanField(default=False)
     phone = models.CharField(max_length=20, blank=True, default="")
     birth_date = models.DateField(null=True, blank=True)
     profile_picture = models.ImageField(upload_to="profile_images/", null=True, blank=True)

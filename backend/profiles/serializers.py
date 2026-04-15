@@ -135,10 +135,10 @@ class BabysitterPublicProfileSerializer(serializers.Serializer):
         return url
 
     def get_cpf_verified(self, obj):
-        return bool(obj.user.cpf)
+        return bool(getattr(obj.user, 'cpf_validated', False))
 
     def get_documentation_verified(self, obj):
-        return bool(obj.user.cpf)
+        return bool(getattr(obj.user, 'cpf_validated', False))
 
     def get_experiences(self, obj):
         return BabysitterExperienceSerializer(
