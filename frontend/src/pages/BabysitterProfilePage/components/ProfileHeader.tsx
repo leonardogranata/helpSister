@@ -131,14 +131,9 @@ export default function ProfileHeader({ profile, isOwner, onUpdated }: Props) {
                   Editar perfil
                 </button>
               ) : (
-                <>
-                  <button className="bg-hs-purple text-white text-sm px-5 py-2 rounded-full hover:bg-hs-purple-dark transition-colors">
-                    Entrar em contato
-                  </button>
-                  <button className="border border-hs-purple text-hs-purple text-sm px-4 py-2 rounded-full hover:bg-purple-50 transition-colors">
-                    Salvar
-                  </button>
-                </>
+                <span className="inline-flex items-center rounded-full bg-purple-50 px-4 py-2 text-sm font-medium text-hs-purple">
+                  Perfil publico
+                </span>
               )}
             </div>
           </div>

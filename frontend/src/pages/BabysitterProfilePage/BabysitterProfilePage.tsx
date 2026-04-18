@@ -1,16 +1,16 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import Navbar from '../../components/layout/Navbar/Navbar'
 import Footer from '../../components/layout/Footer/Footer'
 import { getMyProfile, getPublicProfile } from '../../services/profileService'
 import type {
+  Activities,
   BabysitterProfile,
+  Behavior,
   Experience,
+  PersonalTraits,
   Schedule,
   Training,
-  Behavior,
-  Activities,
-  PersonalTraits,
 } from '../../services/profileService'
 import { getStoredUser } from '../../services/auth'
 
@@ -25,149 +25,143 @@ import ActivitiesSection from './components/ActivitiesSection'
 import PersonalTraitsSection from './components/PersonalTraitsSection'
 import ReviewsSection from './components/ReviewsSection'
 
-// ─── Profile completion steps ────────────────────────────────────────────────
-
 function calcSteps(profile: BabysitterProfile) {
   return [
     {
       label: 'Foto de perfil',
       done: !!profile.profile_picture_url && !profile.profile_picture_url.includes('default'),
     },
-    { label: 'Sobre mim',           done: profile.bio.length > 20 },
-    { label: 'Título profissional',  done: !!profile.title && profile.title !== 'Babá profissional' },
-    { label: 'LinkedIn',            done: !!profile.linkedin },
-    { label: 'Experiências',         done: profile.experiences.length > 0 },
-    { label: 'Disponibilidade',      done: profile.schedules.length > 0 },
-    { label: 'Capacitação',          done: profile.trainings.length > 0 },
+    { label: 'Sobre mim', done: profile.bio.length > 20 },
+    { label: 'Titulo profissional', done: !!profile.title && profile.title !== 'Babá profissional' },
+    { label: 'LinkedIn', done: !!profile.linkedin },
+    { label: 'Experiencias', done: profile.experiences.length > 0 },
+    { label: 'Disponibilidade', done: profile.schedules.length > 0 },
+    { label: 'Capacitacao', done: profile.trainings.length > 0 },
     {
       label: 'Postura',
-      done: !!profile.behavior && Object.values(profile.behavior).some(v => !!v),
+      done: !!profile.behavior && Object.values(profile.behavior).some(value => !!value),
     },
-    { label: 'Atividades',     done: !!profile.activities },
+    { label: 'Atividades', done: !!profile.activities },
     { label: 'Perfil pessoal', done: !!profile.personal_traits },
   ]
 }
 
 const SECTION_IDS: Record<string, string> = {
-  'Foto de perfil':      'profile-header',
-  'Sobre mim':           'profile-header',
-  'Título profissional': 'profile-header',
-  'LinkedIn':            'profile-header',
-  'Experiências':        'section-experiences',
-  'Disponibilidade':     'section-schedule',
-  'Capacitação':         'section-training',
-  'Postura':             'section-behavior',
-  'Atividades':          'section-activities',
-  'Perfil pessoal':      'section-traits',
+  'Foto de perfil': 'profile-header',
+  'Sobre mim': 'profile-header',
+  'Titulo profissional': 'profile-header',
+  LinkedIn: 'profile-header',
+  Experiencias: 'section-experiences',
+  Disponibilidade: 'section-schedule',
+  Capacitacao: 'section-training',
+  Postura: 'section-behavior',
+  Atividades: 'section-activities',
+  'Perfil pessoal': 'section-traits',
 }
 
-// ─── Component ───────────────────────────────────────────────────────────────
-
 export default function BabysitterProfilePage() {
-  const { id }   = useParams<{ id: string }>()
+  const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-
-  // "/baba/perfil" → own profile (id undefined)
-  // "/baba/:id"    → public profile
+  const viewerUser = getStoredUser()
   const isPublicView = !!id
+  const viewerIsContractor = viewerUser?.user_type === 'contractor'
 
   const [profile, setProfile] = useState<BabysitterProfile | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error,   setError]   = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
-  // ── Auth guard (runs once on mount) ──────────────────────────────────────
   useEffect(() => {
-    if (isPublicView) return          // public profiles need no auth
+    if (isPublicView) return
 
     const user = getStoredUser()
     if (!user) {
       navigate('/entrar', { replace: true })
       return
     }
+
     if (user.user_type !== 'babysitter') {
       navigate('/', { replace: true })
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []) // intentionally empty — run only on mount
+  }, [isPublicView, navigate])
 
-  // ── Data loader — deps: only id & isPublicView (stable values) ───────────
   const load = useCallback(async () => {
     setLoading(true)
     setError(null)
+
     try {
       if (isPublicView && id) {
         setProfile(await getPublicProfile(Number(id)))
-      } else {
-        // Read stored user fresh inside callback — avoids object-reference churn
-        const user = getStoredUser()
-        if (user?.user_type === 'babysitter') {
-          setProfile(await getMyProfile())
-        } else {
-          setError('Você precisa estar logada como babá para ver este perfil.')
-        }
+        return
       }
-    } catch (e) {
-      setError((e as Error).message)
+
+      const user = getStoredUser()
+      if (user?.user_type === 'babysitter') {
+        setProfile(await getMyProfile())
+      } else {
+        setError('Voce precisa estar logada como baba para ver este perfil.')
+      }
+    } catch (err) {
+      setError((err as Error).message)
     } finally {
       setLoading(false)
     }
-  }, [id, isPublicView]) // storedUser deliberately NOT in deps — read fresh inside
+  }, [id, isPublicView])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    void load()
+  }, [load])
 
-  // ── Section scroll helper ─────────────────────────────────────────────────
   const scrollTo = (label: string) => {
-    const el = document.getElementById(SECTION_IDS[label])
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    const element = document.getElementById(SECTION_IDS[label])
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
   }
 
-  // ── Optimistic local-state updaters ──────────────────────────────────────
-  const updateProfile     = (p: BabysitterProfile)       => setProfile(p)
-  const updateExperiences = (experiences: Experience[])  => setProfile(prev => prev ? { ...prev, experiences } : prev)
-  const updateSchedules   = (schedules: Schedule[])      => setProfile(prev => prev ? { ...prev, schedules } : prev)
-  const updateTrainings   = (trainings: Training[])      => setProfile(prev => prev ? { ...prev, trainings } : prev)
-  const updateBehavior    = (behavior: Behavior)         => setProfile(prev => prev ? { ...prev, behavior } : prev)
-  const updateActivities  = (activities: Activities)     => setProfile(prev => prev ? { ...prev, activities } : prev)
-  const updateTraits      = (personal_traits: PersonalTraits) => setProfile(prev => prev ? { ...prev, personal_traits } : prev)
+  const updateProfile = (nextProfile: BabysitterProfile) => setProfile(nextProfile)
+  const updateExperiences = (experiences: Experience[]) =>
+    setProfile(prev => (prev ? { ...prev, experiences } : prev))
+  const updateSchedules = (schedules: Schedule[]) =>
+    setProfile(prev => (prev ? { ...prev, schedules } : prev))
+  const updateTrainings = (trainings: Training[]) =>
+    setProfile(prev => (prev ? { ...prev, trainings } : prev))
+  const updateBehavior = (behavior: Behavior) =>
+    setProfile(prev => (prev ? { ...prev, behavior } : prev))
+  const updateActivities = (activities: Activities) =>
+    setProfile(prev => (prev ? { ...prev, activities } : prev))
+  const updateTraits = (personalTraits: PersonalTraits) =>
+    setProfile(prev => (prev ? { ...prev, personal_traits: personalTraits } : prev))
 
-  // Determine ownership after profile loaded
-  const storedUserId = getStoredUser()?.id
-  const isOwner = !isPublicView && !!storedUserId
+  const isOwner = !isPublicView && viewerUser?.user_type === 'babysitter'
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Loading
-  // ─────────────────────────────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="min-h-screen bg-hs-bg">
         <Navbar />
-        <div className="flex items-center justify-center min-h-screen">
+        <div className="flex min-h-screen items-center justify-center">
           <div className="flex flex-col items-center gap-4">
-            <div className="w-10 h-10 border-4 border-hs-purple border-t-transparent rounded-full animate-spin" />
-            <p className="text-hs-textbody text-sm">Carregando perfil...</p>
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-hs-purple border-t-transparent" />
+            <p className="text-sm text-hs-textbody">Carregando perfil...</p>
           </div>
         </div>
       </div>
     )
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Error
-  // ─────────────────────────────────────────────────────────────────────────
   if (error || !profile) {
     return (
       <div className="min-h-screen bg-hs-bg">
         <Navbar />
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center px-4">
-            <p className="text-5xl mb-4">😕</p>
-            <p className="text-hs-purple-dark font-semibold text-lg mb-2">Perfil não encontrado</p>
-            <p className="text-hs-textbody text-sm mb-6">
-              {error || 'Este perfil não existe ou não está disponível.'}
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="px-4 text-center">
+            <p className="mb-4 text-5xl">: (</p>
+            <p className="mb-2 text-lg font-semibold text-hs-purple-dark">Perfil nao encontrado</p>
+            <p className="mb-6 text-sm text-hs-textbody">
+              {error || 'Este perfil nao existe ou nao esta disponivel.'}
             </p>
             <button
               onClick={() => navigate(-1)}
-              className="text-sm text-hs-purple border border-hs-purple px-5 py-2 rounded-full hover:bg-purple-50 transition-colors"
+              className="rounded-full border border-hs-purple px-5 py-2 text-sm text-hs-purple transition-colors hover:bg-purple-50"
             >
               Voltar
             </button>
@@ -179,17 +173,29 @@ export default function BabysitterProfilePage() {
 
   const steps = calcSteps(profile)
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Profile
-  // ─────────────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-hs-bg">
       <Navbar />
 
-      <div className="pt-[68px] pb-12">
-        <div className="max-w-5xl mx-auto px-4 pt-6">
+      <div className="pb-12 pt-[68px]">
+        <div className="mx-auto max-w-5xl px-4 pt-6">
+          {isPublicView && viewerIsContractor && (
+            <div className="mb-4 flex flex-col gap-3 rounded-2xl border border-purple-100 bg-white/90 px-5 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-hs-purple-dark">Visualizacao da contratante</p>
+                <p className="text-sm text-hs-textbody">
+                  Voce esta vendo o perfil publico completo da baba para comparar antes de contratar.
+                </p>
+              </div>
+              <Link
+                to="/contratar"
+                className="inline-flex items-center justify-center rounded-full border border-hs-purple px-4 py-2 text-sm font-medium text-hs-purple transition-colors hover:bg-purple-50"
+              >
+                Voltar para a busca
+              </Link>
+            </div>
+          )}
 
-          {/* Completion banner — own profile only */}
           {isOwner && (
             <CompletionBanner
               percentage={profile.completion_percentage}
@@ -198,10 +204,8 @@ export default function BabysitterProfilePage() {
             />
           )}
 
-          <div className="flex flex-col lg:flex-row gap-6">
-
-            {/* ── Left column ── */}
-            <div className="flex-1 min-w-0">
+          <div className="flex flex-col gap-6 lg:flex-row">
+            <div className="min-w-0 flex-1">
               <div id="profile-header">
                 <ProfileHeader
                   profile={profile}
@@ -235,8 +239,7 @@ export default function BabysitterProfilePage() {
               />
             </div>
 
-            {/* ── Right sidebar ── */}
-            <div className="w-full lg:w-72 flex-shrink-0 space-y-4">
+            <div className="w-full flex-shrink-0 space-y-4 lg:w-72">
               <InformationSection profile={profile} />
 
               <AvailabilitySection
@@ -257,7 +260,6 @@ export default function BabysitterProfilePage() {
                 onChange={updateTraits}
               />
             </div>
-
           </div>
         </div>
       </div>

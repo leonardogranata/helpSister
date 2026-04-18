@@ -36,7 +36,39 @@ def _get_or_create_profile(user):
     return profile
 
 
-# ─── Public profile ──────────────────────────────────────────────────────────
+def _ensure_profiles_for_users(users):
+    user_list = list(users)
+    if not user_list:
+        return []
+
+    existing_user_ids = set(
+        BabysitterProfile.objects.filter(user__in=user_list).values_list('user_id', flat=True)
+    )
+    missing_profiles = [
+        BabysitterProfile(
+            user=user,
+            bio='',
+            title='BabÃ¡ profissional',
+            linkedin='',
+            housing_available=False,
+        )
+        for user in user_list
+        if user.id not in existing_user_ids
+    ]
+    if missing_profiles:
+        BabysitterProfile.objects.bulk_create(missing_profiles)
+
+    return list(
+        BabysitterProfile.objects.filter(user__in=user_list)
+        .select_related('user')
+        .prefetch_related(
+            'user__experiences',
+            'user__schedules',
+            'user__trainings',
+            'user__received_reviews__reviewer',
+        )
+        .order_by('user__first_name', 'user__last_name', 'user__id')
+    )
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -50,8 +82,17 @@ def babysitter_public_profile(request, user_id):
     serializer = BabysitterPublicProfileSerializer(profile, context={'request': request})
     return Response(serializer.data)
 
-
-# ─── My profile ──────────────────────────────────────────────────────────────
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def babysitter_public_profiles_list(request):
+    users = User.objects.filter(user_type='babysitter').order_by('first_name', 'last_name', 'id')
+    profiles = _ensure_profiles_for_users(users)
+    serializer = BabysitterPublicProfileSerializer(
+        profiles,
+        many=True,
+        context={'request': request},
+    )
+    return Response(serializer.data)
 
 @api_view(['GET', 'PATCH'])
 @permission_classes([IsAuthenticated])
@@ -65,16 +106,12 @@ def babysitter_my_profile(request):
         serializer = BabysitterPublicProfileSerializer(profile, context={'request': request})
         return Response(serializer.data)
 
-    # PATCH – update bio / title / linkedin / housing_available
     serializer = BabysitterProfileSerializer(profile, data=request.data, partial=True)
     if serializer.is_valid():
         serializer.save()
         full = BabysitterPublicProfileSerializer(profile, context={'request': request})
         return Response(full.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-# ─── Experiences ─────────────────────────────────────────────────────────────
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
@@ -111,9 +148,6 @@ def experience_detail(request, pk):
     exp.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
 
-
-# ─── Schedule ────────────────────────────────────────────────────────────────
-
 @api_view(['GET', 'PUT'])
 @permission_classes([IsAuthenticated])
 def schedule(request):
@@ -124,7 +158,6 @@ def schedule(request):
         serializer = BabysitterScheduleSerializer(request.user.schedules.all(), many=True)
         return Response(serializer.data)
 
-    # PUT: replace all schedule entries
     request.user.schedules.all().delete()
     created = []
     for item in request.data:
@@ -135,9 +168,6 @@ def schedule(request):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     return Response(created)
-
-
-# ─── Trainings ───────────────────────────────────────────────────────────────
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
@@ -167,9 +197,6 @@ def training_detail(request, pk):
     training.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
 
-
-# ─── Behavior ────────────────────────────────────────────────────────────────
-
 @api_view(['GET', 'PUT'])
 @permission_classes([IsAuthenticated])
 def behavior(request):
@@ -186,9 +213,6 @@ def behavior(request):
         serializer.save()
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-# ─── Activities ──────────────────────────────────────────────────────────────
 
 @api_view(['GET', 'PUT'])
 @permission_classes([IsAuthenticated])
@@ -207,9 +231,6 @@ def activities(request):
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-# ─── Personal Traits ─────────────────────────────────────────────────────────
-
 @api_view(['GET', 'PUT'])
 @permission_classes([IsAuthenticated])
 def personal_traits(request):
@@ -226,9 +247,6 @@ def personal_traits(request):
         serializer.save()
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-# ─── Reviews ─────────────────────────────────────────────────────────────────
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

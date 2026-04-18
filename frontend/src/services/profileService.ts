@@ -151,6 +151,9 @@ export const updateMyProfile = (
 export const getPublicProfile = (userId: number): Promise<BabysitterProfile> =>
   request(`${BASE}/profiles/babysitter/${userId}/`)
 
+export const getPublicBabysitters = (): Promise<BabysitterProfile[]> =>
+  request(`${BASE}/profiles/babysitters/`)
+
 // ─── User info ───────────────────────────────────────────────────────────────
 
 export const getMe = (): Promise<UserInfo> =>
