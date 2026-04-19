@@ -28,15 +28,12 @@ export function buildWsUrl(path: string) {
       const scheme = u.protocol === 'https:' ? 'wss:' : 'ws:'
       return `${scheme}//${u.host}${path}`
     } catch {
-      // fallback to location
+
     }
   }
 
-  // If no API_BASE is configured (common in local dev with Vite),
-  // assume the backend is running on the same machine at port 8000.
-  // This prevents connecting to the Vite dev server (5173) for WS.
   const hostname = window.location.hostname
-  const backendPort = (import.meta.env.VITE_API_PORT ?? '8000') as string
+  const backendPort = (import.meta.env.VITE_API_PORT ?? '8001') as string
   const scheme = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
   return `${scheme}//${hostname}:${backendPort}${path}`
 }

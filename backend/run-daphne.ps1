@@ -9,7 +9,7 @@ If PowerShell blocks running scripts, run once (as user):
 #>
 
 param(
-    [int]$Port = 8000
+  [int]$Port = 8001
 )
 
 # Move to the script directory (backend)
