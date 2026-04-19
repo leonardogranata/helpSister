@@ -54,7 +54,7 @@ export default function Navbar() {
   const navItems: NavItem[] = [
     { href: '#solucao', label: 'Nossa Solucao' },
     { href: '#como-funciona', label: 'Como Funciona' },
-    { href: '#conversar', label: 'Conversar' },
+    { to: '/conversas', label: 'Conversar' },
     isContractor ? { to: '/contratar', label: 'Contratar' } : { href: '#contratar', label: 'Contratar' },
   ]
 

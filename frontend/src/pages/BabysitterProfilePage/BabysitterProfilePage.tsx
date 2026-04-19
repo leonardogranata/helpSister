@@ -187,12 +187,35 @@ export default function BabysitterProfilePage() {
                   Voce esta vendo o perfil publico completo da baba para comparar antes de contratar.
                 </p>
               </div>
-              <Link
-                to="/contratar"
-                className="inline-flex items-center justify-center rounded-full border border-hs-purple px-4 py-2 text-sm font-medium text-hs-purple transition-colors hover:bg-purple-50"
-              >
-                Voltar para a busca
-              </Link>
+              <div className="flex gap-2">
+                <Link
+                  to="/contratar"
+                  className="inline-flex items-center justify-center rounded-full border border-hs-purple px-4 py-2 text-sm font-medium text-hs-purple transition-colors hover:bg-purple-50"
+                >
+                  Voltar para a busca
+                </Link>
+                <button
+                  onClick={async () => {
+                    try {
+                      const token = localStorage.getItem('hs_token')
+                      if (!token) return navigate('/entrar')
+                      const res = await fetch('/api/chat/conversations/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', Authorization: `Token ${token}` },
+                        body: JSON.stringify({ other_user_id: profile.id }),
+                      })
+                      if (!res.ok) throw new Error('Erro ao iniciar conversa')
+                      const data = await res.json()
+                      navigate(`/conversas/${data.id}`)
+                    } catch (err) {
+                      alert((err as Error).message)
+                    }
+                  }}
+                  className="inline-flex items-center justify-center rounded-full bg-hs-purple px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-hs-purple-dark"
+                >
+                  Conversar
+                </button>
+              </div>
             </div>
           )}
 

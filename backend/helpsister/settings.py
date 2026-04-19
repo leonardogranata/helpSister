@@ -40,7 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'channels',
     'accounts',
+    'chat',
     'profiles',
 ]
 
@@ -139,6 +141,15 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.AllowAny',
     ),
+}
+
+# ASGI / Channels
+ASGI_APPLICATION = 'helpsister.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
 }
 
 # CORS during development — allow frontend dev server

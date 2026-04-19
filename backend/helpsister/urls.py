@@ -23,6 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include('accounts.api_urls')),
     path('api/profiles/', include('profiles.urls')),
+    path('api/chat/', include('chat.api_urls')),
 ]
 
 if settings.DEBUG:

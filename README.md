@@ -191,12 +191,19 @@ python -m venv venv
 .\venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 python manage.py migrate
-python manage.py runserver
+
+# Start Django dev server (HTTP + REST/admin) on port 8001
+py .\manage.py runserver 8001
+
+# In another PowerShell (activate the venv there first), start Daphne to enable WebSockets:
+.# from the backend folder run the helper script
+.\run-daphne.ps1
 ```
 
 O backend estará disponível em:
-- API: `http://127.0.0.1:8000`
-- Admin: `http://127.0.0.1:8000/admin/`
+- API: http://127.0.0.1:8001
+- Admin: http://127.0.0.1:8001/admin/
+- WebSocket (quando Daphne estiver ativo): ver porta do script `backend/run-daphne.ps1`
 
 ### 3. Frontend (React)
 
