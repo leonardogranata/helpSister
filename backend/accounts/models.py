@@ -26,6 +26,12 @@ class User(AbstractUser):
     neighborhood = models.CharField(max_length=100, blank=True, null=True)
     service_radius = models.IntegerField(blank=True, null=True)
     pix_key = models.CharField(max_length=100, blank=True, null=True)
+    blocked_users = models.ManyToManyField(
+        "self",
+        symmetrical=False,
+        related_name="blocked_by",
+        blank=True,
+    )
 
     def __str__(self):
         return self.email
@@ -38,3 +44,8 @@ class User(AbstractUser):
             except ValueError:
                 pass
         return static("accounts/images/default_profile.png")
+
+    def has_blocked(self, other_user):
+        if not other_user:
+            return False
+        return self.blocked_users.filter(pk=other_user.pk).exists()

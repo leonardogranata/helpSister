@@ -34,7 +34,7 @@ class UserAdmin(DjangoUserAdmin):
         ("Autenticacao", {"fields": ("username", "password")}),
         (
             "Dados basicos",
-            {"fields": ("first_name", "last_name", "email", "user_type", "profile_picture")},
+            {"fields": ("first_name", "last_name", "email", "user_type", "profile_picture", "blocked_users")},
         ),
         ("Dados pessoais", {"fields": ("cpf", "phone", "birth_date")}),
         ("Localizacao", {"fields": ("city", "zip_code", "street", "number", "neighborhood")}),
