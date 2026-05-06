@@ -272,8 +272,8 @@ npm run lint     # Verificar código
 | Nome | Papel |
 |---|---|
 | Leonardo Jordão Granata | Back-end |
-| Pedro H. Ferreira Moraes | Front-end |
-| Eduardo Meneghetti | Fullstack |
+| [Pedro H. Ferreira Moraes](https://github.com/PedroMoraes57) | Front-end |
+| [Eduardo Meneghetti](https://github.com/EduardoGorayeb) | Fullstack |
 
 ---
 
